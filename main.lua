@@ -24,7 +24,11 @@ function love.load()
             100,
             "assets/enemigos/orc1_walk_without_shadow.png",
             80,
-            1.85
+            1.85,
+            42,
+            52,
+            0,
+            -6
         )
     
     enemigo2 =
@@ -33,7 +37,11 @@ function love.load()
         100,
         "assets/enemigos/orc2_walk_without_shadow.png",
         100,
-        2.0
+        2.0,
+        50,
+        60,
+        0,
+        -9
     )
 
 
@@ -43,7 +51,11 @@ function love.load()
         500,
         "assets/enemigos/orc3_walk_without_shadow.png",
         120,
-        2.15
+        2.15,
+        58,
+        68,
+        0,
+        -12
     )
 
 

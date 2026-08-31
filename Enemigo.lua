@@ -10,7 +10,11 @@ function Enemigo:Load(
     y,
     imagen,
     velocidad,
-    escala
+    escala,
+    hitbox_ancho,
+    hitbox_alto,
+    hitbox_offset_x,
+    hitbox_offset_y
 )
 
     local enemigo =
@@ -36,11 +40,17 @@ function Enemigo:Load(
 
 -- HITBOX DEL ENEMIGO
 
-    enemigo.hitbox_ancho = 42
-    enemigo.hitbox_alto = 52
+enemigo.hitbox_ancho =
+    hitbox_ancho or 42
 
-    enemigo.hitbox_offset_x = 0
-    enemigo.hitbox_offset_y = -6
+enemigo.hitbox_alto =
+    hitbox_alto or 52
+
+enemigo.hitbox_offset_x =
+    hitbox_offset_x or 0
+
+enemigo.hitbox_offset_y =
+    hitbox_offset_y or -6
 
     enemigo.hitbox_x = 0
     enemigo.hitbox_y = 0
