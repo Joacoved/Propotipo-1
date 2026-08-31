@@ -53,4 +53,6 @@ function love.draw()
 
     Jugador.Debug()
 
+    enemigo1:Debug()
+
 end

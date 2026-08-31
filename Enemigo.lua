@@ -34,6 +34,19 @@ function Enemigo:Load(
     enemigo.direccion =
         "derecha"
 
+-- HITBOX DEL ENEMIGO
+
+    enemigo.hitbox_ancho = 42
+    enemigo.hitbox_alto = 52
+
+    enemigo.hitbox_offset_x = 0
+    enemigo.hitbox_offset_y = -6
+
+    enemigo.hitbox_x = 0
+    enemigo.hitbox_y = 0
+
+-- SPRITE
+
     enemigo.sprite =
         love.graphics.newImage(
             imagen
@@ -41,7 +54,9 @@ function Enemigo:Load(
 
     enemigo.cantidad_frames = 6
     enemigo.indice = 1
+
     enemigo.velocidad_animacion = 10
+
 
     enemigo.animaciones = {
         abajo = {},
@@ -50,12 +65,15 @@ function Enemigo:Load(
         derecha = {}
     }
 
+
     enemigo:CrearAnimaciones()
+
+    enemigo:UpdateHitbox()
+
 
     return enemigo
 
 end
-
 
 -- CREAR ANIMACIONES 
 
@@ -94,6 +112,21 @@ function Enemigo:CrearAnimaciones()
 
 end
 
+-- HITBOX 
+
+function Enemigo:UpdateHitbox()
+
+    self.hitbox_x =
+        self.x -
+        self.hitbox_ancho / 2 +
+        self.hitbox_offset_x
+
+    self.hitbox_y =
+        self.y -
+        self.hitbox_alto / 2 +
+        self.hitbox_offset_y
+
+end
 
 -- PERSEGUIR 
 
@@ -167,6 +200,8 @@ function Enemigo:Perseguir(
 
     end
 
+    self:UpdateHitbox()
+
 end
 
 
@@ -225,6 +260,32 @@ function Enemigo:Draw()
         self.escala,
         self.origen_x,
         self.origen_y
+    )
+
+end
+
+-- DEBUG
+
+function Enemigo:Debug()
+
+    -- Hitbox del enemigo
+
+    love.graphics.rectangle(
+        "line",
+        self.hitbox_x,
+        self.hitbox_y,
+        self.hitbox_ancho,
+        self.hitbox_alto
+    )
+
+
+    -- Centro del enemigo
+
+    love.graphics.circle(
+        "fill",
+        self.x,
+        self.y,
+        2
     )
 
 end
