@@ -1,9 +1,12 @@
+require("colisiones")
 require("jugador")
 require("enemigo")
 
 local enemigo1
 local enemigo2
 local enemigo3
+
+local colision_detectada = false
 
 function love.load()
 
@@ -87,6 +90,59 @@ function love.update(dt)
     dt
 )
 
+colision_detectada = false
+
+
+if Colisiones.AABB(
+    Jugador.hitbox_x,
+    Jugador.hitbox_y,
+    Jugador.hitbox_ancho,
+    Jugador.hitbox_alto,
+
+    enemigo1.hitbox_x,
+    enemigo1.hitbox_y,
+    enemigo1.hitbox_ancho,
+    enemigo1.hitbox_alto
+) then
+
+    colision_detectada = true
+
+end
+
+
+if Colisiones.AABB(
+    Jugador.hitbox_x,
+    Jugador.hitbox_y,
+    Jugador.hitbox_ancho,
+    Jugador.hitbox_alto,
+
+    enemigo2.hitbox_x,
+    enemigo2.hitbox_y,
+    enemigo2.hitbox_ancho,
+    enemigo2.hitbox_alto
+) then
+
+    colision_detectada = true
+
+end
+
+
+if Colisiones.AABB(
+    Jugador.hitbox_x,
+    Jugador.hitbox_y,
+    Jugador.hitbox_ancho,
+    Jugador.hitbox_alto,
+
+    enemigo3.hitbox_x,
+    enemigo3.hitbox_y,
+    enemigo3.hitbox_ancho,
+    enemigo3.hitbox_alto
+) then
+
+    colision_detectada = true
+
+end
+
 end
 
 
@@ -104,4 +160,13 @@ function love.draw()
     enemigo2:Debug()
     enemigo3:Debug()
 
+    if colision_detectada then
+
+    love.graphics.print(
+        "COLISION",
+        10,
+        10
+    )
+
+end
 end
