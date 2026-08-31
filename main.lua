@@ -30,4 +30,6 @@ function love.draw()
 
     Jugador.Draw()
 
+    Jugador.Debug()
+
 end

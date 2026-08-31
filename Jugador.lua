@@ -10,6 +10,12 @@ Jugador.escala = 1.7
 Jugador.origen_x = 32
 Jugador.origen_y = 32
 
+Jugador.hitbox_ancho = 34
+Jugador.hitbox_alto = 44
+
+Jugador.hitbox_x = 0
+Jugador.hitbox_y = 0
+
 Jugador.direccion = "derecha"
 Jugador.moviendose = false
 
@@ -35,7 +41,7 @@ Jugador.cantidad_idle = {
 Jugador.cantidad_walk = 6
 
 
--- =================== LOAD ===================
+-- LOAD 
 
 function Jugador.Load()
 
@@ -62,10 +68,12 @@ function Jugador.Load()
 
     Jugador.CrearAnimaciones()
 
+    Jugador.UpdateHitbox()
+
 end
 
 
--- =================== CREAR ANIMACIONES ===================
+-- CREAR ANIMACIONES 
 
 function Jugador.CrearAnimaciones()
 
@@ -92,7 +100,7 @@ function Jugador.CrearAnimaciones()
     }
 
 
-    -- =================== IDLE ===================
+    -- IDLE 
 
     for fila = 0, 3 do
 
@@ -121,7 +129,7 @@ function Jugador.CrearAnimaciones()
     end
 
 
-    -- =================== WALK ===================
+    -- WALK
 
     for fila = 0, 3 do
 
@@ -149,8 +157,21 @@ function Jugador.CrearAnimaciones()
 
 end
 
+-- HITBOX 
 
--- =================== MOVIMIENTO ===================
+function Jugador.UpdateHitbox()
+
+    Jugador.hitbox_x =
+        Jugador.x -
+        Jugador.hitbox_ancho / 2
+
+    Jugador.hitbox_y =
+        Jugador.y -
+        Jugador.hitbox_alto / 2
+
+end
+
+-- MOVIMIENTO 
 
 function Jugador.UpdateMovimiento(dt)
 
@@ -216,10 +237,11 @@ function Jugador.UpdateMovimiento(dt)
         Jugador.velocidad *
         dt
 
+        Jugador.UpdateHitbox()
 end
 
 
--- =================== UPDATE ANIMACION ===================
+-- UPDATE ANIMACION 
 
 function Jugador.UpdateAnimacion(dt)
 
@@ -261,7 +283,7 @@ function Jugador.UpdateAnimacion(dt)
 end
 
 
--- =================== DRAW ===================
+-- DRAW 
 
 function Jugador.Draw()
 
@@ -312,6 +334,32 @@ function Jugador.Draw()
         Jugador.escala,
         Jugador.origen_x,
         Jugador.origen_y
+    )
+
+end
+
+-- DEBUG 
+
+function Jugador.Debug()
+
+    -- Hitbox del jugador
+
+    love.graphics.rectangle(
+        "line",
+        Jugador.hitbox_x,
+        Jugador.hitbox_y,
+        Jugador.hitbox_ancho,
+        Jugador.hitbox_alto
+    )
+
+
+    -- Centro del jugador
+
+    love.graphics.circle(
+        "fill",
+        Jugador.x,
+        Jugador.y,
+        2
     )
 
 end
