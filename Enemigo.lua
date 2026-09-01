@@ -8,7 +8,10 @@ Enemigo.__index = Enemigo
 function Enemigo:Load(
     x,
     y,
-    imagen,
+    imagen_walk,
+    imagen_attack,
+    imagen_hurt,
+    imagen_death,
     velocidad,
     escala,
     hitbox_ancho,
@@ -37,9 +40,28 @@ function Enemigo:Load(
     enemigo.origen_x = 32
     enemigo.origen_y = 32
 
-
     enemigo.direccion =
         "derecha"
+
+
+    -- COMBATE
+
+    enemigo.vida = 3
+    enemigo.vida_maxima = 3
+
+    enemigo.activo = true
+
+    enemigo.atacando = false
+    enemigo.hurt = false
+    enemigo.muerto = false
+
+    enemigo.tocando_jugador = false
+
+    enemigo.golpe_jugador_registrado =
+        false
+
+    enemigo.golpeado_ataque =
+        false
 
 
     -- HITBOX
@@ -50,46 +72,68 @@ function Enemigo:Load(
     enemigo.hitbox_alto =
         hitbox_alto or 52
 
+
     enemigo.hitbox_offset_x =
         hitbox_offset_x or 0
 
     enemigo.hitbox_offset_y =
         hitbox_offset_y or -6
 
+
     enemigo.hitbox_x = 0
     enemigo.hitbox_y = 0
 
 
+    -- SPRITES
 
-
-
-    -- COLISION
-
-    enemigo.tocando_jugador =
-        false
-
-
-    -- SPRITE
-
-    enemigo.sprite =
+    enemigo.sprite_walk =
         love.graphics.newImage(
-            imagen
+            imagen_walk
         )
 
 
-    enemigo.cantidad_frames = 6
+    enemigo.sprite_attack =
+        love.graphics.newImage(
+            imagen_attack
+        )
 
-    enemigo.indice = 1
 
-    enemigo.velocidad_animacion = 10
+    enemigo.sprite_hurt =
+        love.graphics.newImage(
+            imagen_hurt
+        )
 
 
-    enemigo.animaciones = {
-        abajo = {},
-        arriba = {},
-        izquierda = {},
-        derecha = {}
-    }
+    enemigo.sprite_death =
+        love.graphics.newImage(
+            imagen_death
+        )
+
+
+    -- ANIMACIONES
+
+    enemigo.anim_walk = {}
+    enemigo.anim_attack = {}
+    enemigo.anim_hurt = {}
+    enemigo.anim_death = {}
+
+
+    enemigo.indice_walk = 1
+    enemigo.indice_attack = 1
+    enemigo.indice_hurt = 1
+    enemigo.indice_death = 1
+
+
+    enemigo.cantidad_walk = 6
+    enemigo.cantidad_attack = 8
+    enemigo.cantidad_hurt = 6
+    enemigo.cantidad_death = 8
+
+
+    enemigo.velocidad_walk = 10
+    enemigo.velocidad_attack = 12
+    enemigo.velocidad_hurt = 10
+    enemigo.velocidad_death = 8
 
 
     enemigo:CrearAnimaciones()
@@ -106,6 +150,38 @@ end
 
 function Enemigo:CrearAnimaciones()
 
+    self.anim_walk = {
+        abajo = {},
+        arriba = {},
+        izquierda = {},
+        derecha = {}
+    }
+
+
+    self.anim_attack = {
+        abajo = {},
+        arriba = {},
+        izquierda = {},
+        derecha = {}
+    }
+
+
+    self.anim_hurt = {
+        abajo = {},
+        arriba = {},
+        izquierda = {},
+        derecha = {}
+    }
+
+
+    self.anim_death = {
+        abajo = {},
+        arriba = {},
+        izquierda = {},
+        derecha = {}
+    }
+
+
     local direcciones = {
         "abajo",
         "arriba",
@@ -114,30 +190,70 @@ function Enemigo:CrearAnimaciones()
     }
 
 
-    for fila = 0, 3 do
+    local function CrearFrames(
+        destino,
+        cantidad,
+        sprite
+    )
 
-        local direccion =
-            direcciones[fila + 1]
+        for fila = 0, 3 do
+
+            local direccion =
+                direcciones[
+                    fila + 1
+                ]
 
 
-        for columna = 0,
-            self.cantidad_frames - 1 do
+            for columna = 0,
+                cantidad - 1 do
 
-            table.insert(
-                self.animaciones[direccion],
+                table.insert(
+                    destino[
+                        direccion
+                    ],
 
-                love.graphics.newQuad(
-                    columna * 64,
-                    fila * 64,
-                    64,
-                    64,
-                    self.sprite
+                    love.graphics.newQuad(
+                        columna * 64,
+                        fila * 64,
+                        64,
+                        64,
+                        sprite
+                    )
                 )
-            )
+
+            end
 
         end
 
     end
+
+
+    CrearFrames(
+        self.anim_walk,
+        self.cantidad_walk,
+        self.sprite_walk
+    )
+
+
+    CrearFrames(
+        self.anim_attack,
+        self.cantidad_attack,
+        self.sprite_attack
+    )
+
+
+    CrearFrames(
+        self.anim_hurt,
+        self.cantidad_hurt,
+        self.sprite_hurt
+    )
+
+
+    CrearFrames(
+        self.anim_death,
+        self.cantidad_death,
+        self.sprite_death
+    )
 
 end
 
@@ -151,10 +267,86 @@ function Enemigo:UpdateHitbox()
         self.hitbox_ancho / 2 +
         self.hitbox_offset_x
 
+
     self.hitbox_y =
         self.y -
         self.hitbox_alto / 2 +
         self.hitbox_offset_y
+
+end
+
+
+-- LIMITAR ARENA
+
+function Enemigo:LimitarArena()
+
+    local centro_x =
+        self.x +
+        self.hitbox_offset_x
+
+
+    local centro_y =
+        self.y +
+        self.hitbox_offset_y
+
+
+    local mitad_ancho =
+        self.hitbox_ancho / 2
+
+
+    local mitad_alto =
+        self.hitbox_alto / 2
+
+
+    if centro_x -
+       mitad_ancho <
+       Arena.limite_izquierdo then
+
+        self.x =
+            Arena.limite_izquierdo -
+            self.hitbox_offset_x +
+            mitad_ancho
+
+    end
+
+
+    if centro_x +
+       mitad_ancho >
+       Arena.limite_derecho then
+
+        self.x =
+            Arena.limite_derecho -
+            self.hitbox_offset_x -
+            mitad_ancho
+
+    end
+
+
+    if centro_y -
+       mitad_alto <
+       Arena.limite_superior then
+
+        self.y =
+            Arena.limite_superior -
+            self.hitbox_offset_y +
+            mitad_alto
+
+    end
+
+
+    if centro_y +
+       mitad_alto >
+       Arena.limite_inferior then
+
+        self.y =
+            Arena.limite_inferior -
+            self.hitbox_offset_y -
+            mitad_alto
+
+    end
+
+
+    self:UpdateHitbox()
 
 end
 
@@ -170,6 +362,7 @@ function Enemigo:Perseguir(
     local dx =
         jugador_x -
         self.x
+
 
     local dy =
         jugador_y -
@@ -189,6 +382,7 @@ function Enemigo:Perseguir(
             self.direccion =
                 "izquierda"
 
+
         elseif dx > 0 then
 
             self.x =
@@ -201,6 +395,7 @@ function Enemigo:Perseguir(
 
         end
 
+
     else
 
         if dy < 0 then
@@ -212,6 +407,7 @@ function Enemigo:Perseguir(
 
             self.direccion =
                 "arriba"
+
 
         elseif dy > 0 then
 
@@ -226,6 +422,32 @@ function Enemigo:Perseguir(
         end
 
     end
+
+
+    self:LimitarArena()
+
+end
+
+
+-- INICIAR ATAQUE
+
+function Enemigo:IniciarAtaque()
+
+    if not self.activo
+       or self.muerto
+       or self.hurt
+       or self.atacando then
+
+        return
+
+    end
+
+
+    self.atacando =
+        true
+
+    self.indice_attack =
+        1
 
 end
 
@@ -244,11 +466,113 @@ function Enemigo:Update(
     dt
 )
 
-  local x_anterior =
-    self.x
+    if not self.activo then
 
-local y_anterior =
-    self.y
+        return
+
+    end
+
+
+    -- DEATH
+
+    if self.muerto then
+
+        self.tocando_jugador =
+            false
+
+
+        self.indice_death =
+            self.indice_death +
+            self.velocidad_death *
+            dt
+
+
+        if self.indice_death >=
+           self.cantidad_death + 1 then
+
+            self.indice_death =
+                self.cantidad_death
+
+            self.activo =
+                false
+
+        end
+
+
+        return
+
+    end
+
+
+    -- HURT
+
+    if self.hurt then
+
+        self.tocando_jugador =
+            false
+
+
+        self.indice_hurt =
+            self.indice_hurt +
+            self.velocidad_hurt *
+            dt
+
+
+        if self.indice_hurt >=
+           self.cantidad_hurt + 1 then
+
+            self.indice_hurt =
+                1
+
+            self.hurt =
+                false
+
+        end
+
+
+        return
+
+    end
+
+
+ -- ATTACK
+
+if self.atacando then
+
+    self.indice_attack =
+        self.indice_attack +
+        self.velocidad_attack *
+        dt
+
+
+    if self.indice_attack >=
+       self.cantidad_attack + 1 then
+
+        self.indice_attack =
+            1
+
+        self.atacando =
+            false
+
+        self.golpe_jugador_registrado =
+            false
+
+    end
+
+
+    return
+
+end
+
+
+    -- MOVIMIENTO
+
+    local x_anterior =
+        self.x
+
+
+    local y_anterior =
+        self.y
 
 
     self:Perseguir(
@@ -261,43 +585,50 @@ local y_anterior =
     self:UpdateHitbox()
 
 
-local tocando_jugador =
-    Colisiones.AABB(
-        self.hitbox_x,
-        self.hitbox_y,
-        self.hitbox_ancho,
-        self.hitbox_alto,
+    self.tocando_jugador =
+        Colisiones.AABB(
+            self.hitbox_x,
+            self.hitbox_y,
+            self.hitbox_ancho,
+            self.hitbox_alto,
 
-        jugador_hitbox_x,
-        jugador_hitbox_y,
-        jugador_hitbox_ancho,
-        jugador_hitbox_alto
-    )
+            jugador_hitbox_x,
+            jugador_hitbox_y,
+            jugador_hitbox_ancho,
+            jugador_hitbox_alto
+        )
 
 
-if tocando_jugador then
+    if self.tocando_jugador then
 
- self.x =
-    x_anterior
+        self.x =
+            x_anterior
 
-self.y =
-    y_anterior
+        self.y =
+            y_anterior
 
         self:UpdateHitbox()
+
+
+    else
+
+        self.golpe_jugador_registrado =
+            false
 
     end
 
 
-    self.indice =
-        self.indice +
-        self.velocidad_animacion *
+    self.indice_walk =
+        self.indice_walk +
+        self.velocidad_walk *
         dt
 
 
-    if self.indice >=
-       self.cantidad_frames + 1 then
+    if self.indice_walk >=
+       self.cantidad_walk + 1 then
 
-        self.indice = 1
+        self.indice_walk =
+            1
 
     end
 
@@ -314,6 +645,16 @@ function Enemigo:ResolverColision(
     jugador_hitbox_ancho,
     jugador_hitbox_alto
 )
+
+    if not self.activo
+       or not otro.activo
+       or self.muerto
+       or otro.muerto then
+
+        return
+
+    end
+
 
     if not Colisiones.AABB(
         self.hitbox_x,
@@ -350,6 +691,7 @@ function Enemigo:ResolverColision(
         self.hitbox_x +
         self.hitbox_ancho / 2
 
+
     local centro_self_y =
         self.hitbox_y +
         self.hitbox_alto / 2
@@ -359,6 +701,7 @@ function Enemigo:ResolverColision(
         otro.hitbox_x +
         otro.hitbox_ancho / 2
 
+
     local centro_otro_y =
         otro.hitbox_y +
         otro.hitbox_alto / 2
@@ -367,6 +710,7 @@ function Enemigo:ResolverColision(
     local distancia_x =
         centro_otro_x -
         centro_self_x
+
 
     local distancia_y =
         centro_otro_y -
@@ -378,7 +722,10 @@ function Enemigo:ResolverColision(
             self.hitbox_ancho / 2 +
             otro.hitbox_ancho / 2
         )
-        - math.abs(distancia_x)
+        -
+        math.abs(
+            distancia_x
+        )
 
 
     local penetracion_y =
@@ -386,10 +733,11 @@ function Enemigo:ResolverColision(
             self.hitbox_alto / 2 +
             otro.hitbox_alto / 2
         )
-        - math.abs(distancia_y)
+        -
+        math.abs(
+            distancia_y
+        )
 
-
-    -- SEPARAR POR EL EJE DE MENOR PENETRACION
 
     if penetracion_x <
        penetracion_y then
@@ -419,6 +767,7 @@ function Enemigo:ResolverColision(
                 separacion
 
         end
+
 
     else
 
@@ -451,11 +800,9 @@ function Enemigo:ResolverColision(
     end
 
 
-    self:UpdateHitbox()
-    otro:UpdateHitbox()
+    self:LimitarArena()
+    otro:LimitarArena()
 
-
-    -- COMPROBAR SELF CONTRA EL JUGADOR
 
     if Colisiones.AABB(
         self.hitbox_x,
@@ -479,8 +826,6 @@ function Enemigo:ResolverColision(
 
     end
 
-
-    -- COMPROBAR OTRO CONTRA EL JUGADOR
 
     if Colisiones.AABB(
         otro.hitbox_x,
@@ -507,24 +852,297 @@ function Enemigo:ResolverColision(
 end
 
 
+-- RECIBIR GOLPE
+
+function Enemigo:RecibirGolpe(
+    cantidad
+)
+
+    if not self.activo
+       or self.muerto then
+
+        return
+
+    end
+
+
+    self.vida =
+        self.vida -
+        cantidad
+
+
+    if self.vida <= 0 then
+
+        self.vida =
+            0
+
+        self.muerto =
+            true
+
+        self.atacando =
+            false
+
+        self.hurt =
+            false
+
+        self.tocando_jugador =
+            false
+
+        self.indice_death =
+            1
+
+
+    else
+
+        self.atacando =
+            false
+
+        self.hurt =
+            true
+
+        self.indice_hurt =
+            1
+
+    end
+
+end
+
+
+-- BARRA DE VIDA
+
+function Enemigo:DibujarBarraVida()
+
+    if not self.activo
+       or self.muerto then
+
+        return
+
+    end
+
+
+    local ancho =
+        50
+
+
+    local alto =
+        6
+
+
+    local x =
+        self.x -
+        ancho / 2
+
+
+    local y =
+        self.y -
+        60
+
+
+    local porcentaje =
+        self.vida /
+        self.vida_maxima
+
+
+    if porcentaje < 0 then
+
+        porcentaje =
+            0
+
+    end
+
+
+    love.graphics.setColor(
+        0.2,
+        0.2,
+        0.2
+    )
+
+
+    love.graphics.rectangle(
+        "fill",
+        x,
+        y,
+        ancho,
+        alto
+    )
+
+
+    love.graphics.setColor(
+        0.8,
+        0.1,
+        0.1
+    )
+
+
+    love.graphics.rectangle(
+        "fill",
+        x,
+        y,
+        ancho *
+        porcentaje,
+        alto
+    )
+
+
+    love.graphics.setColor(
+        0,
+        0,
+        0
+    )
+
+
+    love.graphics.rectangle(
+        "line",
+        x,
+        y,
+        ancho,
+        alto
+    )
+
+
+    love.graphics.setColor(
+        1,
+        1,
+        1
+    )
+
+end
+
+
 -- DRAW
 
 function Enemigo:Draw()
 
-    local frame =
-        math.floor(
-            self.indice
-        )
+    if not self.activo then
+
+        return
+
+    end
 
 
-    local quad =
-        self.animaciones
+    local sprite
+    local quad
+
+
+    if self.muerto then
+
+        sprite =
+            self.sprite_death
+
+
+        local frame =
+            math.floor(
+                self.indice_death
+            )
+
+
+        if frame >
+           self.cantidad_death then
+
+            frame =
+                self.cantidad_death
+
+        end
+
+
+        quad =
+            self.anim_death
             [self.direccion]
             [frame]
 
 
+    elseif self.hurt then
+
+        sprite =
+            self.sprite_hurt
+
+
+        local frame =
+            math.floor(
+                self.indice_hurt
+            )
+
+
+        if frame >
+           self.cantidad_hurt then
+
+            frame =
+                self.cantidad_hurt
+
+        end
+
+
+        quad =
+            self.anim_hurt
+            [self.direccion]
+            [frame]
+
+
+    elseif self.atacando then
+
+        sprite =
+            self.sprite_attack
+
+
+        local frame =
+            math.floor(
+                self.indice_attack
+            )
+
+
+        if frame >
+           self.cantidad_attack then
+
+            frame =
+                self.cantidad_attack
+
+        end
+
+
+        quad =
+            self.anim_attack
+            [self.direccion]
+            [frame]
+
+
+    else
+
+        sprite =
+            self.sprite_walk
+
+
+        local frame =
+            math.floor(
+                self.indice_walk
+            )
+
+
+        if frame >
+           self.cantidad_walk then
+
+            frame =
+                1
+
+        end
+
+
+        quad =
+            self.anim_walk
+            [self.direccion]
+            [frame]
+
+    end
+
+
+    love.graphics.setColor(
+        1,
+        1,
+        1
+    )
+
+
     love.graphics.draw(
-        self.sprite,
+        sprite,
         quad,
         self.x,
         self.y,
@@ -541,6 +1159,13 @@ end
 -- DEBUG
 
 function Enemigo:Debug()
+
+    if not self.activo then
+
+        return
+
+    end
+
 
     love.graphics.rectangle(
         "line",
