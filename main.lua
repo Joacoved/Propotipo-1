@@ -12,7 +12,8 @@ local enemigo3
 
 local function JugadorColisiona()
 
-    if Colisiones.AABB(
+if enemigo1.activo
+   and Colisiones.AABB(
         Jugador.hitbox_x,
         Jugador.hitbox_y,
         Jugador.hitbox_ancho,
@@ -22,14 +23,15 @@ local function JugadorColisiona()
         enemigo1.hitbox_y,
         enemigo1.hitbox_ancho,
         enemigo1.hitbox_alto
-    ) then
+   ) then
 
-        return true
+    return true
 
-    end
+end
 
 
-    if Colisiones.AABB(
+if enemigo2.activo
+   and Colisiones.AABB(
         Jugador.hitbox_x,
         Jugador.hitbox_y,
         Jugador.hitbox_ancho,
@@ -39,14 +41,15 @@ local function JugadorColisiona()
         enemigo2.hitbox_y,
         enemigo2.hitbox_ancho,
         enemigo2.hitbox_alto
-    ) then
+   ) then
 
-        return true
+    return true
 
-    end
+end
 
 
-    if Colisiones.AABB(
+if enemigo3.activo
+   and Colisiones.AABB(
         Jugador.hitbox_x,
         Jugador.hitbox_y,
         Jugador.hitbox_ancho,
@@ -56,11 +59,11 @@ local function JugadorColisiona()
         enemigo3.hitbox_y,
         enemigo3.hitbox_ancho,
         enemigo3.hitbox_alto
-    ) then
+   ) then
 
-        return true
+    return true
 
-    end
+end
 
 
     return false
@@ -97,6 +100,7 @@ function love.load()
             -6
         )
 
+        enemigo1.vida = 2
 
     enemigo2 =
         Enemigo:Load(
@@ -111,6 +115,7 @@ function love.load()
             -9
         )
 
+        enemigo2.vida = 3
 
     enemigo3 =
         Enemigo:Load(
@@ -124,6 +129,8 @@ function love.load()
             0,
             -12
         )
+
+        enemigo3.vida = 5
 
 end
 
@@ -159,6 +166,16 @@ function love.update(dt)
     Jugador.Atacar(dt)
 
     Jugador.UpdateAnimacion(dt)
+
+    -- NUEVO ATAQUE
+
+if Jugador.nuevo_ataque then
+
+    enemigo1.golpeado_ataque = false
+    enemigo2.golpeado_ataque = false
+    enemigo3.golpeado_ataque = false
+
+end
 
 
     -- UPDATE ENEMIGOS
@@ -201,8 +218,82 @@ function love.update(dt)
         dt
     )
 
+    -- GOLPE A ENEMIGO 1
+
+if Jugador.atacando
+   and enemigo1.activo
+   and not enemigo1.golpeado_ataque
+   and Colisiones.AABB(
+        Jugador.ataque_x,
+        Jugador.ataque_y,
+        Jugador.ataque_ancho,
+        Jugador.ataque_alto,
+
+        enemigo1.hitbox_x,
+        enemigo1.hitbox_y,
+        enemigo1.hitbox_ancho,
+        enemigo1.hitbox_alto
+   ) then
+
+    enemigo1:RecibirGolpe(1)
+
+    enemigo1.golpeado_ataque = true
+
+end
+
+
+-- GOLPE A ENEMIGO 2
+
+if Jugador.atacando
+   and enemigo2.activo
+   and not enemigo2.golpeado_ataque
+   and Colisiones.AABB(
+        Jugador.ataque_x,
+        Jugador.ataque_y,
+        Jugador.ataque_ancho,
+        Jugador.ataque_alto,
+
+        enemigo2.hitbox_x,
+        enemigo2.hitbox_y,
+        enemigo2.hitbox_ancho,
+        enemigo2.hitbox_alto
+   ) then
+
+    enemigo2:RecibirGolpe(1)
+
+    enemigo2.golpeado_ataque = true
+
+end
+
+
+-- GOLPE A ENEMIGO 3
+
+if Jugador.atacando
+   and enemigo3.activo
+   and not enemigo3.golpeado_ataque
+   and Colisiones.AABB(
+        Jugador.ataque_x,
+        Jugador.ataque_y,
+        Jugador.ataque_ancho,
+        Jugador.ataque_alto,
+
+        enemigo3.hitbox_x,
+        enemigo3.hitbox_y,
+        enemigo3.hitbox_ancho,
+        enemigo3.hitbox_alto
+   ) then
+
+    enemigo3:RecibirGolpe(1)
+
+    enemigo3.golpeado_ataque = true
+
+end
+
 
     -- COLISION ENTRE ENEMIGOS
+
+if enemigo1.activo
+   and enemigo2.activo then
 
     enemigo1:ResolverColision(
         enemigo2,
@@ -213,6 +304,11 @@ function love.update(dt)
         Jugador.hitbox_alto
     )
 
+end
+
+
+if enemigo1.activo
+   and enemigo3.activo then
 
     enemigo1:ResolverColision(
         enemigo3,
@@ -223,6 +319,11 @@ function love.update(dt)
         Jugador.hitbox_alto
     )
 
+end
+
+
+if enemigo2.activo
+   and enemigo3.activo then
 
     enemigo2:ResolverColision(
         enemigo3,
@@ -232,6 +333,8 @@ function love.update(dt)
         Jugador.hitbox_ancho,
         Jugador.hitbox_alto
     )
+
+end
 
 end
 
@@ -250,6 +353,24 @@ function love.draw()
     enemigo1:Debug()
     enemigo2:Debug()
     enemigo3:Debug()
+
+    love.graphics.print(
+    "Vida E1: " .. enemigo1.vida,
+    10,
+    10
+)
+
+love.graphics.print(
+    "Vida E2: " .. enemigo2.vida,
+    10,
+    30
+)
+
+love.graphics.print(
+    "Vida E3: " .. enemigo3.vida,
+    10,
+    50
+)
 
 
 

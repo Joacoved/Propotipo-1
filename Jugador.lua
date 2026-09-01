@@ -45,6 +45,7 @@ Jugador.cantidad_walk = 6
 -- COMBATE
 
 Jugador.atacando = false
+Jugador.nuevo_ataque = false
 
 Jugador.ataque_x = 0
 Jugador.ataque_y = 0
@@ -98,7 +99,8 @@ function Jugador.Load()
     Jugador.direccion = "derecha"
     Jugador.moviendose = false
 
-     Jugador.atacando = false
+    Jugador.atacando = false
+    Jugador.nuevo_ataque = false
 
     Jugador.cooldown_ataque = 0
     Jugador.tiempo_ataque = 0
@@ -300,6 +302,8 @@ end
 function Jugador.Atacar(dt)
 
     
+    Jugador.nuevo_ataque = false
+
 
     if Jugador.cooldown_ataque > 0 then
 
@@ -335,6 +339,7 @@ function Jugador.Atacar(dt)
        and not Jugador.atacando then
 
         Jugador.atacando = true
+        Jugador.nuevo_ataque = true
 
         Jugador.cooldown_ataque =
             Jugador.tiempo_cooldown

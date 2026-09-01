@@ -41,6 +41,12 @@ function Enemigo:Load(
     enemigo.direccion =
         "derecha"
 
+        -- COMBATE
+
+    enemigo.vida = 3
+    enemigo.activo = true
+
+     enemigo.golpeado_ataque = false 
 
     -- HITBOX
 
@@ -232,7 +238,11 @@ end
 
 -- UPDATE
 
+
+
 function Enemigo:Update(
+
+    
     jugador_x,
     jugador_y,
 
@@ -243,6 +253,12 @@ function Enemigo:Update(
 
     dt
 )
+
+if not self.activo then
+
+    return
+
+end
 
   local x_anterior =
     self.x
@@ -509,10 +525,40 @@ function Enemigo:ResolverColision(
 
 end
 
+-- RECIBIR GOLPE
+
+function Enemigo:RecibirGolpe(cantidad)
+
+    if not self.activo then
+
+        return
+
+    end
+
+
+    self.vida =
+        self.vida -
+        cantidad
+
+
+    if self.vida <= 0 then
+
+        self.vida = 0
+        self.activo = false
+
+    end
+
+end
 
 -- DRAW
 
 function Enemigo:Draw()
+
+    if not self.activo then
+
+    return
+
+end
 
     local frame =
         math.floor(
@@ -544,6 +590,12 @@ end
 -- DEBUG
 
 function Enemigo:Debug()
+
+    if not self.activo then
+
+    return
+
+end
 
     love.graphics.rectangle(
         "line",
