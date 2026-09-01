@@ -87,7 +87,6 @@ Jugador.cantidad_walk_ataque = 6
 Jugador.cantidad_hurt = 5
 Jugador.cantidad_death = 7
 
--- COMBATE
 
 -- COMBATE
 
@@ -281,9 +280,7 @@ function Jugador.CrearAnimaciones()
 
 
         for columna = 0,
-            cantidad - 1 do
-
-            table.insert(
+            cantidad - 1 do  table.insert(
                 Jugador.anim_idle[direccion],
 
                 love.graphics.newQuad(
@@ -328,7 +325,7 @@ function Jugador.CrearAnimaciones()
     end
 
 
-    -- ATTACK
+    -- ATAQUE
 
     for fila = 0, 3 do
 
@@ -356,7 +353,7 @@ function Jugador.CrearAnimaciones()
     end
 
 
-    -- WALK ATTACK
+    -- WALK ATAQUE
 
     for fila = 0, 3 do
 
@@ -457,8 +454,6 @@ function Jugador.UpdateHitbox()
 
 end
 
-
--- INVULNERABILIDAD
 
 function Jugador.UpdateInvulnerabilidad(dt)
 
@@ -571,7 +566,6 @@ end
 
 function Jugador.Atacar(dt)
 
-    
     Jugador.nuevo_ataque = false
 
 
@@ -596,7 +590,6 @@ function Jugador.Atacar(dt)
     end
 
 
-    -- DURACION DEL ATAQUE
     -- DURACION
 
     if Jugador.tiempo_ataque > 0 then
@@ -616,7 +609,6 @@ function Jugador.Atacar(dt)
     end
 
 
-    -- INICIAR ATAQUE
     -- INICIAR
 
     if love.keyboard.isDown("space")
@@ -645,14 +637,11 @@ function Jugador.Atacar(dt)
     end
 
 
-    -- HITBOX DEL ATAQUE
     -- HITBOX ATAQUE
 
     if Jugador.atacando then
 
 
-        
-        -- DERECHA
 
         if Jugador.direccion == "derecha" then
 
@@ -671,9 +660,6 @@ function Jugador.Atacar(dt)
                 Jugador.y -
                 Jugador.ataque_alto / 2
 
-
-        
-        -- IZQUIERDA
 
         elseif Jugador.direccion == "izquierda" then
 
@@ -694,9 +680,6 @@ function Jugador.Atacar(dt)
                 Jugador.ataque_alto / 2
 
 
-        
-        -- ARRIBA
-
         elseif Jugador.direccion == "arriba" then
 
             Jugador.ataque_ancho =
@@ -715,9 +698,6 @@ function Jugador.Atacar(dt)
                 Jugador.hitbox_alto / 2 -
                 Jugador.ataque_alto
 
-
-        
-        -- ABAJO
 
         elseif Jugador.direccion == "abajo" then
 
@@ -796,7 +776,7 @@ function Jugador.UpdateAnimacion(dt)
     end
 
 
-    -- WALK ATTACK
+    -- WALK ATAQUE
 
     if Jugador.atacando
        and Jugador.ataque_en_movimiento then
@@ -821,7 +801,7 @@ function Jugador.UpdateAnimacion(dt)
     end
 
 
-    -- ATTACK
+    -- ATAQUE
 
     if Jugador.atacando then
 
@@ -1022,7 +1002,7 @@ function Jugador.Draw()
                 [frame]
 
 
-    -- WALK ATTACK
+    -- WALK ATAQUE
 
     elseif Jugador.atacando
        and Jugador.ataque_en_movimiento then
@@ -1052,7 +1032,7 @@ function Jugador.Draw()
                 [frame]
 
 
-    -- ATTACK
+    -- ATAQUE
 
     elseif Jugador.atacando then
 

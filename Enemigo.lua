@@ -45,7 +45,6 @@ function Enemigo:Load(
     enemigo.direccion =
         "derecha"
 
-        -- COMBATE
 
     -- COMBATE
 
@@ -91,7 +90,6 @@ function Enemigo:Load(
         )
 
 
-    -- COLISION
     enemigo.sprite_attack =
         love.graphics.newImage(
             imagen_attack
@@ -218,7 +216,7 @@ function Enemigo:CrearAnimaciones()
     end
 
 
-    -- ATAQUE
+    -- ATTACK
 
     for fila = 0, 3 do
 
@@ -399,7 +397,6 @@ function Enemigo:Perseguir(
 end
 
 
--- UPDATE
 -- INICIAR ATAQUE
 
 function Enemigo:IniciarAtaque()
@@ -493,7 +490,7 @@ function Enemigo:Update(
     end
 
 
-    -- ATAQUE
+    -- ATTACK
 
     if self.atacando then
 
@@ -684,7 +681,6 @@ function Enemigo:ResolverColision(
 
 
     -- SEPARAR POR EL EJE DE MENOR PENETRACION
-  
 
     if penetracion_x <
        penetracion_y then
@@ -753,8 +749,6 @@ function Enemigo:ResolverColision(
     otro:UpdateHitbox()
 
 
-    -- COMPROBAR SELF CONTRA EL JUGADOR
-   
     -- COMPROBAR SELF CONTRA JUGADOR
 
     if Colisiones.AABB(
@@ -780,8 +774,6 @@ function Enemigo:ResolverColision(
     end
 
 
-    -- COMPROBAR OTRO CONTRA EL JUGADOR
-   
     -- COMPROBAR OTRO CONTRA JUGADOR
 
     if Colisiones.AABB(
@@ -924,7 +916,7 @@ function Enemigo:Draw()
                 [frame]
 
 
-    -- ATAQUE
+    -- ATTACK
 
     elseif self.atacando then
 

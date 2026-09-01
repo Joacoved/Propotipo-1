@@ -8,8 +8,6 @@ local enemigo2
 local enemigo3
 
 
--- JUGADOR COLISIONA
-
 local function JugadorColisiona()
 
     if enemigo1.activo
@@ -90,8 +88,6 @@ function love.load()
     Jugador.Load()
 
 
-    -- ENEMIGO 1
-
     enemigo1 =
         Enemigo:Load(
             100,
@@ -108,13 +104,11 @@ function love.load()
             52,
             0,
             -6
-        )
+)
 
 
     enemigo1.vida = 2
 
-
-    -- ENEMIGO 2
 
     enemigo2 =
         Enemigo:Load(
@@ -137,8 +131,6 @@ function love.load()
 
     enemigo2.vida = 3
 
-
-    -- ENEMIGO 3
 
     enemigo3 =
         Enemigo:Load(
@@ -166,10 +158,7 @@ end
 
 function love.update(dt)
 
-    -- INVULNERABILIDAD JUGADOR
-
     Jugador.UpdateInvulnerabilidad(dt)
-
 
     -- MOVIMIENTO JUGADOR
 
@@ -195,8 +184,6 @@ function love.update(dt)
 
     end
 
-        -- ATAQUE JUGADOR
--- ATAQUE JUGADOR
 
     -- ATAQUE JUGADOR
 
@@ -310,8 +297,6 @@ function love.update(dt)
     end
 
 
-    -- GOLPE A ENEMIGO 1
-
     if Jugador.atacando
        and enemigo1.activo
        and not enemigo1.muerto
@@ -335,9 +320,6 @@ function love.update(dt)
 
     end
 
-
--- GOLPE A ENEMIGO 2
-    -- GOLPE A ENEMIGO 2
 
     if Jugador.atacando
        and enemigo2.activo
@@ -363,8 +345,6 @@ function love.update(dt)
     end
 
 
-    -- GOLPE A ENEMIGO 3
-
     if Jugador.atacando
        and enemigo3.activo
        and not enemigo3.muerto
@@ -389,7 +369,6 @@ function love.update(dt)
     end
 
 
-    -- COLISION ENTRE ENEMIGOS
     -- GOLPE AL JUGADOR
 
     local golpe_enemigo1 =
@@ -494,7 +473,6 @@ function love.draw()
     enemigo3:Debug()
 
 
-    -- INFORMACION TEMPORAL
 
     love.graphics.print(
         "Vida jugador: " ..
