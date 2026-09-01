@@ -10,11 +10,13 @@ Jugador.escala = 1.7
 Jugador.origen_x = 32
 Jugador.origen_y = 32
 
+
 Jugador.hitbox_ancho = 34
 Jugador.hitbox_alto = 44
 
 Jugador.hitbox_x = 0
 Jugador.hitbox_y = 0
+
 
 Jugador.direccion = "derecha"
 Jugador.moviendose = false
@@ -41,7 +43,7 @@ Jugador.cantidad_idle = {
 Jugador.cantidad_walk = 6
 
 
--- LOAD 
+-- LOAD
 
 function Jugador.Load()
 
@@ -73,7 +75,7 @@ function Jugador.Load()
 end
 
 
--- CREAR ANIMACIONES 
+-- CREAR ANIMACIONES
 
 function Jugador.CrearAnimaciones()
 
@@ -100,7 +102,7 @@ function Jugador.CrearAnimaciones()
     }
 
 
-    -- IDLE 
+    -- IDLE
 
     for fila = 0, 3 do
 
@@ -110,7 +112,9 @@ function Jugador.CrearAnimaciones()
         local cantidad =
             Jugador.cantidad_idle[direccion]
 
-        for columna = 0, cantidad - 1 do
+
+        for columna = 0,
+            cantidad - 1 do
 
             table.insert(
                 Jugador.anim_idle[direccion],
@@ -136,6 +140,7 @@ function Jugador.CrearAnimaciones()
         local direccion =
             direcciones[fila + 1]
 
+
         for columna = 0,
             Jugador.cantidad_walk - 1 do
 
@@ -157,7 +162,8 @@ function Jugador.CrearAnimaciones()
 
 end
 
--- HITBOX 
+
+-- HITBOX
 
 function Jugador.UpdateHitbox()
 
@@ -171,77 +177,70 @@ function Jugador.UpdateHitbox()
 
 end
 
--- MOVIMIENTO 
+
+-- MOVIMIENTO
 
 function Jugador.UpdateMovimiento(dt)
 
-    local movimiento_x = 0
-    local movimiento_y = 0
-
-
-    if love.keyboard.isDown("a") then
-
-        movimiento_x = -1
-        Jugador.direccion = "izquierda"
-
-    elseif love.keyboard.isDown("d") then
-
-        movimiento_x = 1
-        Jugador.direccion = "derecha"
-
-    end
+    Jugador.moviendose = false
 
 
     if love.keyboard.isDown("w") then
 
-        movimiento_y = -1
+        Jugador.y =
+            Jugador.y -
+            Jugador.velocidad *
+            dt
+
         Jugador.direccion = "arriba"
+
+        Jugador.moviendose = true
+
 
     elseif love.keyboard.isDown("s") then
 
-        movimiento_y = 1
+        Jugador.y =
+            Jugador.y +
+            Jugador.velocidad *
+            dt
+
         Jugador.direccion = "abajo"
 
+        Jugador.moviendose = true
+
+
+    elseif love.keyboard.isDown("a") then
+
+        Jugador.x =
+            Jugador.x -
+            Jugador.velocidad *
+            dt
+
+        Jugador.direccion = "izquierda"
+
+        Jugador.moviendose = true
+
+
+    elseif love.keyboard.isDown("d") then
+
+        Jugador.x =
+            Jugador.x +
+            Jugador.velocidad *
+            dt
+
+        Jugador.direccion = "derecha"
+
+        Jugador.moviendose = true
+
     end
 
 
-    Jugador.moviendose =
-        movimiento_x ~= 0
-        or movimiento_y ~= 0
+    Jugador.UpdateHitbox()
 
-
-    if movimiento_x ~= 0
-       and movimiento_y ~= 0 then
-
-        local diagonal =
-            math.sqrt(2)
-
-        movimiento_x =
-            movimiento_x / diagonal
-
-        movimiento_y =
-            movimiento_y / diagonal
-
-    end
-
-
-    Jugador.x =
-        Jugador.x +
-        movimiento_x *
-        Jugador.velocidad *
-        dt
-
-    Jugador.y =
-        Jugador.y +
-        movimiento_y *
-        Jugador.velocidad *
-        dt
-
-        Jugador.UpdateHitbox()
 end
 
 
--- UPDATE ANIMACION 
+-- UPDATE ANIMACION
 
 function Jugador.UpdateAnimacion(dt)
 
@@ -251,6 +250,7 @@ function Jugador.UpdateAnimacion(dt)
             Jugador.indice_walk +
             Jugador.velocidad_walk *
             dt
+
 
         if Jugador.indice_walk >=
            Jugador.cantidad_walk + 1 then
@@ -266,10 +266,12 @@ function Jugador.UpdateAnimacion(dt)
                 Jugador.direccion
             ]
 
+
         Jugador.indice_idle =
             Jugador.indice_idle +
             Jugador.velocidad_idle *
             dt
+
 
         if Jugador.indice_idle >=
            cantidad + 1 then
@@ -283,7 +285,7 @@ function Jugador.UpdateAnimacion(dt)
 end
 
 
--- DRAW 
+-- DRAW
 
 function Jugador.Draw()
 
@@ -296,10 +298,12 @@ function Jugador.Draw()
         sprite =
             Jugador.sprite_walk
 
+
         local frame =
             math.floor(
                 Jugador.indice_walk
             )
+
 
         quad =
             Jugador.anim_walk
@@ -311,10 +315,12 @@ function Jugador.Draw()
         sprite =
             Jugador.sprite_idle
 
+
         local frame =
             math.floor(
                 Jugador.indice_idle
             )
+
 
         quad =
             Jugador.anim_idle
@@ -338,11 +344,10 @@ function Jugador.Draw()
 
 end
 
--- DEBUG 
+
+-- DEBUG
 
 function Jugador.Debug()
-
-    -- Hitbox del jugador
 
     love.graphics.rectangle(
         "line",
@@ -352,8 +357,6 @@ function Jugador.Debug()
         Jugador.hitbox_alto
     )
 
-
-    -- Centro del jugador
 
     love.graphics.circle(
         "fill",
