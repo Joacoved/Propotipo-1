@@ -3,7 +3,7 @@ Enemigo = {}
 Enemigo.__index = Enemigo
 
 
--- LOAD 
+-- LOAD
 
 function Enemigo:Load(
     x,
@@ -23,6 +23,7 @@ function Enemigo:Load(
             Enemigo
         )
 
+
     enemigo.x = x
     enemigo.y = y
 
@@ -32,37 +33,52 @@ function Enemigo:Load(
     enemigo.escala =
         escala or 1
 
+
     enemigo.origen_x = 32
     enemigo.origen_y = 32
+
 
     enemigo.direccion =
         "derecha"
 
--- HITBOX DEL ENEMIGO
 
-enemigo.hitbox_ancho =
-    hitbox_ancho or 42
+    -- HITBOX
 
-enemigo.hitbox_alto =
-    hitbox_alto or 52
+    enemigo.hitbox_ancho =
+        hitbox_ancho or 42
 
-enemigo.hitbox_offset_x =
-    hitbox_offset_x or 0
+    enemigo.hitbox_alto =
+        hitbox_alto or 52
 
-enemigo.hitbox_offset_y =
-    hitbox_offset_y or -6
+    enemigo.hitbox_offset_x =
+        hitbox_offset_x or 0
+
+    enemigo.hitbox_offset_y =
+        hitbox_offset_y or -6
 
     enemigo.hitbox_x = 0
     enemigo.hitbox_y = 0
 
--- SPRITE
+
+
+
+
+    -- COLISION
+
+    enemigo.tocando_jugador =
+        false
+
+
+    -- SPRITE
 
     enemigo.sprite =
         love.graphics.newImage(
             imagen
         )
 
+
     enemigo.cantidad_frames = 6
+
     enemigo.indice = 1
 
     enemigo.velocidad_animacion = 10
@@ -85,7 +101,8 @@ enemigo.hitbox_offset_y =
 
 end
 
--- CREAR ANIMACIONES 
+
+-- CREAR ANIMACIONES
 
 function Enemigo:CrearAnimaciones()
 
@@ -96,10 +113,12 @@ function Enemigo:CrearAnimaciones()
         "derecha"
     }
 
+
     for fila = 0, 3 do
 
         local direccion =
             direcciones[fila + 1]
+
 
         for columna = 0,
             self.cantidad_frames - 1 do
@@ -122,7 +141,8 @@ function Enemigo:CrearAnimaciones()
 
 end
 
--- HITBOX 
+
+-- HITBOX
 
 function Enemigo:UpdateHitbox()
 
@@ -138,7 +158,8 @@ function Enemigo:UpdateHitbox()
 
 end
 
--- PERSEGUIR 
+
+-- PERSEGUIR
 
 function Enemigo:Perseguir(
     jugador_x,
@@ -147,81 +168,88 @@ function Enemigo:Perseguir(
 )
 
     local dx =
-        jugador_x - self.x
+        jugador_x -
+        self.x
 
     local dy =
-        jugador_y - self.y
-
-    local distancia =
-        math.sqrt(
-            dx * dx +
-            dy * dy
-        )
+        jugador_y -
+        self.y
 
 
-    if distancia > 0 then
+    if math.abs(dx) >
+       math.abs(dy) then
 
-        dx = dx / distancia
-        dy = dy / distancia
+        if dx < 0 then
 
-        self.x =
-            self.x +
-            dx *
-            self.velocidad *
-            dt
+            self.x =
+                self.x -
+                self.velocidad *
+                dt
 
-        self.y =
-            self.y +
-            dy *
-            self.velocidad *
-            dt
+            self.direccion =
+                "izquierda"
 
+        elseif dx > 0 then
 
-        if math.abs(dx) >
-           math.abs(dy) then
+            self.x =
+                self.x +
+                self.velocidad *
+                dt
 
-            if dx > 0 then
+            self.direccion =
+                "derecha"
 
-                self.direccion =
-                    "derecha"
+        end
 
-            else
+    else
 
-                self.direccion =
-                    "izquierda"
+        if dy < 0 then
 
-            end
+            self.y =
+                self.y -
+                self.velocidad *
+                dt
 
-        else
+            self.direccion =
+                "arriba"
 
-            if dy > 0 then
+        elseif dy > 0 then
 
-                self.direccion =
-                    "abajo"
+            self.y =
+                self.y +
+                self.velocidad *
+                dt
 
-            else
-
-                self.direccion =
-                    "arriba"
-
-            end
+            self.direccion =
+                "abajo"
 
         end
 
     end
 
-    self:UpdateHitbox()
-
 end
 
 
--- UPDATE 
+-- UPDATE
 
 function Enemigo:Update(
     jugador_x,
     jugador_y,
+
+    jugador_hitbox_x,
+    jugador_hitbox_y,
+    jugador_hitbox_ancho,
+    jugador_hitbox_alto,
+
     dt
 )
+
+  local x_anterior =
+    self.x
+
+local y_anterior =
+    self.y
+
 
     self:Perseguir(
         jugador_x,
@@ -230,10 +258,41 @@ function Enemigo:Update(
     )
 
 
+    self:UpdateHitbox()
+
+
+local tocando_jugador =
+    Colisiones.AABB(
+        self.hitbox_x,
+        self.hitbox_y,
+        self.hitbox_ancho,
+        self.hitbox_alto,
+
+        jugador_hitbox_x,
+        jugador_hitbox_y,
+        jugador_hitbox_ancho,
+        jugador_hitbox_alto
+    )
+
+
+if tocando_jugador then
+
+ self.x =
+    x_anterior
+
+self.y =
+    y_anterior
+
+        self:UpdateHitbox()
+
+    end
+
+
     self.indice =
         self.indice +
         self.velocidad_animacion *
         dt
+
 
     if self.indice >=
        self.cantidad_frames + 1 then
@@ -245,7 +304,210 @@ function Enemigo:Update(
 end
 
 
--- DRAW 
+-- COLISION ENTRE ENEMIGOS
+
+function Enemigo:ResolverColision(
+    otro,
+
+    jugador_hitbox_x,
+    jugador_hitbox_y,
+    jugador_hitbox_ancho,
+    jugador_hitbox_alto
+)
+
+    if not Colisiones.AABB(
+        self.hitbox_x,
+        self.hitbox_y,
+        self.hitbox_ancho,
+        self.hitbox_alto,
+
+        otro.hitbox_x,
+        otro.hitbox_y,
+        otro.hitbox_ancho,
+        otro.hitbox_alto
+    ) then
+
+        return
+
+    end
+
+
+    local self_x_anterior =
+        self.x
+
+    local self_y_anterior =
+        self.y
+
+
+    local otro_x_anterior =
+        otro.x
+
+    local otro_y_anterior =
+        otro.y
+
+
+    local centro_self_x =
+        self.hitbox_x +
+        self.hitbox_ancho / 2
+
+    local centro_self_y =
+        self.hitbox_y +
+        self.hitbox_alto / 2
+
+
+    local centro_otro_x =
+        otro.hitbox_x +
+        otro.hitbox_ancho / 2
+
+    local centro_otro_y =
+        otro.hitbox_y +
+        otro.hitbox_alto / 2
+
+
+    local distancia_x =
+        centro_otro_x -
+        centro_self_x
+
+    local distancia_y =
+        centro_otro_y -
+        centro_self_y
+
+
+    local penetracion_x =
+        (
+            self.hitbox_ancho / 2 +
+            otro.hitbox_ancho / 2
+        )
+        - math.abs(distancia_x)
+
+
+    local penetracion_y =
+        (
+            self.hitbox_alto / 2 +
+            otro.hitbox_alto / 2
+        )
+        - math.abs(distancia_y)
+
+
+    -- SEPARAR POR EL EJE DE MENOR PENETRACION
+
+    if penetracion_x <
+       penetracion_y then
+
+        local separacion =
+            penetracion_x / 2
+
+
+        if distancia_x < 0 then
+
+            self.x =
+                self.x +
+                separacion
+
+            otro.x =
+                otro.x -
+                separacion
+
+        else
+
+            self.x =
+                self.x -
+                separacion
+
+            otro.x =
+                otro.x +
+                separacion
+
+        end
+
+    else
+
+        local separacion =
+            penetracion_y / 2
+
+
+        if distancia_y < 0 then
+
+            self.y =
+                self.y +
+                separacion
+
+            otro.y =
+                otro.y -
+                separacion
+
+        else
+
+            self.y =
+                self.y -
+                separacion
+
+            otro.y =
+                otro.y +
+                separacion
+
+        end
+
+    end
+
+
+    self:UpdateHitbox()
+    otro:UpdateHitbox()
+
+
+    -- COMPROBAR SELF CONTRA EL JUGADOR
+
+    if Colisiones.AABB(
+        self.hitbox_x,
+        self.hitbox_y,
+        self.hitbox_ancho,
+        self.hitbox_alto,
+
+        jugador_hitbox_x,
+        jugador_hitbox_y,
+        jugador_hitbox_ancho,
+        jugador_hitbox_alto
+    ) then
+
+        self.x =
+            self_x_anterior
+
+        self.y =
+            self_y_anterior
+
+        self:UpdateHitbox()
+
+    end
+
+
+    -- COMPROBAR OTRO CONTRA EL JUGADOR
+
+    if Colisiones.AABB(
+        otro.hitbox_x,
+        otro.hitbox_y,
+        otro.hitbox_ancho,
+        otro.hitbox_alto,
+
+        jugador_hitbox_x,
+        jugador_hitbox_y,
+        jugador_hitbox_ancho,
+        jugador_hitbox_alto
+    ) then
+
+        otro.x =
+            otro_x_anterior
+
+        otro.y =
+            otro_y_anterior
+
+        otro:UpdateHitbox()
+
+    end
+
+end
+
+
+-- DRAW
 
 function Enemigo:Draw()
 
@@ -253,6 +515,7 @@ function Enemigo:Draw()
         math.floor(
             self.indice
         )
+
 
     local quad =
         self.animaciones
@@ -274,11 +537,10 @@ function Enemigo:Draw()
 
 end
 
+
 -- DEBUG
 
 function Enemigo:Debug()
-
-    -- Hitbox del enemigo
 
     love.graphics.rectangle(
         "line",
@@ -288,8 +550,6 @@ function Enemigo:Debug()
         self.hitbox_alto
     )
 
-
-    -- Centro del enemigo
 
     love.graphics.circle(
         "fill",

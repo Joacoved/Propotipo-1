@@ -7,16 +7,10 @@ local enemigo1
 local enemigo2
 local enemigo3
 
-local colision_detectada = false
 
+-- JUGADOR COLISIONA
 
--- RESOLVER COLISION JUGADOR / ENEMIGO
-
-local function ResolverColisionJugadorEnemigo(
-    enemigo,
-    x_anterior,
-    y_anterior
-)
+local function JugadorColisiona()
 
     if Colisiones.AABB(
         Jugador.hitbox_x,
@@ -24,19 +18,45 @@ local function ResolverColisionJugadorEnemigo(
         Jugador.hitbox_ancho,
         Jugador.hitbox_alto,
 
-        enemigo.hitbox_x,
-        enemigo.hitbox_y,
-        enemigo.hitbox_ancho,
-        enemigo.hitbox_alto
+        enemigo1.hitbox_x,
+        enemigo1.hitbox_y,
+        enemigo1.hitbox_ancho,
+        enemigo1.hitbox_alto
     ) then
 
-        enemigo.x =
-            x_anterior
+        return true
 
-        enemigo.y =
-            y_anterior
+    end
 
-        enemigo:UpdateHitbox()
+
+    if Colisiones.AABB(
+        Jugador.hitbox_x,
+        Jugador.hitbox_y,
+        Jugador.hitbox_ancho,
+        Jugador.hitbox_alto,
+
+        enemigo2.hitbox_x,
+        enemigo2.hitbox_y,
+        enemigo2.hitbox_ancho,
+        enemigo2.hitbox_alto
+    ) then
+
+        return true
+
+    end
+
+
+    if Colisiones.AABB(
+        Jugador.hitbox_x,
+        Jugador.hitbox_y,
+        Jugador.hitbox_ancho,
+        Jugador.hitbox_alto,
+
+        enemigo3.hitbox_x,
+        enemigo3.hitbox_y,
+        enemigo3.hitbox_ancho,
+        enemigo3.hitbox_alto
+    ) then
 
         return true
 
@@ -54,6 +74,7 @@ function love.load()
         800,
         600
     )
+
 
     love.window.setTitle(
         "Prototipo1"
@@ -109,96 +130,107 @@ end
 
 function love.update(dt)
 
+    -- MOVIMIENTO JUGADOR
+
+    local jugador_x_anterior =
+        Jugador.x
+
+    local jugador_y_anterior =
+        Jugador.y
+
+
     Jugador.UpdateMovimiento(dt)
 
-    Jugador.UpdateAnimacion(dt)
 
+    if JugadorColisiona() then
 
-    colision_detectada = false
+        Jugador.x =
+            jugador_x_anterior
 
+        Jugador.y =
+            jugador_y_anterior
 
-    -- ENEMIGO 1
-
-    local enemigo1_x_anterior =
-        enemigo1.x
-
-    local enemigo1_y_anterior =
-        enemigo1.y
-
-
-    enemigo1:Update(
-        Jugador.x,
-        Jugador.y,
-        dt
-    )
-
-
-    if ResolverColisionJugadorEnemigo(
-        enemigo1,
-        enemigo1_x_anterior,
-        enemigo1_y_anterior
-    ) then
-
-        colision_detectada = true
+        Jugador.UpdateHitbox()
 
     end
 
 
-    -- ENEMIGO 2
+    Jugador.UpdateAnimacion(dt)
 
-    local enemigo2_x_anterior =
-        enemigo2.x
 
-    local enemigo2_y_anterior =
-        enemigo2.y
+    -- UPDATE ENEMIGOS
+
+    enemigo1:Update(
+        Jugador.x,
+        Jugador.y,
+
+        Jugador.hitbox_x,
+        Jugador.hitbox_y,
+        Jugador.hitbox_ancho,
+        Jugador.hitbox_alto,
+
+        dt
+    )
 
 
     enemigo2:Update(
         Jugador.x,
         Jugador.y,
+
+        Jugador.hitbox_x,
+        Jugador.hitbox_y,
+        Jugador.hitbox_ancho,
+        Jugador.hitbox_alto,
+
         dt
     )
-
-
-    if ResolverColisionJugadorEnemigo(
-        enemigo2,
-        enemigo2_x_anterior,
-        enemigo2_y_anterior
-    ) then
-
-        colision_detectada = true
-
-    end
-
-
-    -- ENEMIGO 3
-
-    local enemigo3_x_anterior =
-        enemigo3.x
-
-    local enemigo3_y_anterior =
-        enemigo3.y
 
 
     enemigo3:Update(
         Jugador.x,
         Jugador.y,
+
+        Jugador.hitbox_x,
+        Jugador.hitbox_y,
+        Jugador.hitbox_ancho,
+        Jugador.hitbox_alto,
+
         dt
     )
 
 
-    if ResolverColisionJugadorEnemigo(
+    -- COLISION ENTRE ENEMIGOS
+
+    enemigo1:ResolverColision(
+        enemigo2,
+
+        Jugador.hitbox_x,
+        Jugador.hitbox_y,
+        Jugador.hitbox_ancho,
+        Jugador.hitbox_alto
+    )
+
+
+    enemigo1:ResolverColision(
         enemigo3,
-        enemigo3_x_anterior,
-        enemigo3_y_anterior
-    ) then
 
-        colision_detectada = true
+        Jugador.hitbox_x,
+        Jugador.hitbox_y,
+        Jugador.hitbox_ancho,
+        Jugador.hitbox_alto
+    )
 
-    end
+
+    enemigo2:ResolverColision(
+        enemigo3,
+
+        Jugador.hitbox_x,
+        Jugador.hitbox_y,
+        Jugador.hitbox_ancho,
+        Jugador.hitbox_alto
+    )
 
 end
-
 
 function love.draw()
 
@@ -217,14 +249,6 @@ function love.draw()
     enemigo3:Debug()
 
 
-    if colision_detectada then
 
-        love.graphics.print(
-            "COLISION",
-            10,
-            10
-        )
-
-    end
 
 end
