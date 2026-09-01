@@ -42,6 +42,7 @@ function Enemigo:Load(
         "derecha"
 
         -- COMBATE
+    -- COMBATE
 
     enemigo.vida = 3
     enemigo.activo = true

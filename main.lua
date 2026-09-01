@@ -138,6 +138,7 @@ end
 function love.update(dt)
 
     -- MOVIMIENTO JUGADOR
+-- MOVIMIENTO JUGADOR
 
     local jugador_x_anterior =
         Jugador.x
@@ -162,6 +163,7 @@ function love.update(dt)
     end
 
         -- ATAQUE JUGADOR
+-- ATAQUE JUGADOR
 
     Jugador.Atacar(dt)
 

@@ -23,15 +23,19 @@ Jugador.moviendose = false
 
 Jugador.sprite_idle = nil
 Jugador.sprite_walk = nil
+Jugador.sprite_ataque = nil
 
 Jugador.anim_idle = {}
 Jugador.anim_walk = {}
+Jugador.anim_ataque = {}
 
 Jugador.indice_idle = 1
 Jugador.indice_walk = 1
+Jugador.indice_ataque = 1
 
 Jugador.velocidad_idle = 8
 Jugador.velocidad_walk = 10
+Jugador.velocidad_ataque = 14
 
 Jugador.cantidad_idle = {
     abajo = 12,
@@ -41,6 +45,7 @@ Jugador.cantidad_idle = {
 }
 
 Jugador.cantidad_walk = 6
+Jugador.cantidad_ataque = 8
 
 -- COMBATE
 
@@ -113,6 +118,7 @@ function Jugador.Load()
 
     Jugador.indice_idle = 1
     Jugador.indice_walk = 1
+    Jugador.indice_ataque = 1
 
 
     Jugador.sprite_idle =
@@ -124,6 +130,11 @@ function Jugador.Load()
         love.graphics.newImage(
             "assets/jugador/Swordsman_lvl1_Walk_without_shadow.png"
         )
+
+    Jugador.sprite_ataque =
+    love.graphics.newImage(
+        "assets/jugador/Swordsman_lvl1_attack_without_shadow.png"
+    )
 
 
     Jugador.CrearAnimaciones()
@@ -145,6 +156,13 @@ function Jugador.CrearAnimaciones()
     }
 
     Jugador.anim_walk = {
+        abajo = {},
+        izquierda = {},
+        derecha = {},
+        arriba = {}
+    }
+
+    Jugador.anim_ataque = {
         abajo = {},
         izquierda = {},
         derecha = {},
@@ -211,6 +229,34 @@ function Jugador.CrearAnimaciones()
                     64,
                     64,
                     Jugador.sprite_walk
+                )
+            )
+
+        end
+
+    end
+
+
+    -- ATTACK
+
+    for fila = 0, 3 do
+
+        local direccion =
+            direcciones[fila + 1]
+
+
+        for columna = 0,
+            Jugador.cantidad_ataque - 1 do
+
+            table.insert(
+                Jugador.anim_ataque[direccion],
+
+                love.graphics.newQuad(
+                    columna * 64,
+                    fila * 64,
+                    64,
+                    64,
+                    Jugador.sprite_ataque
                 )
             )
 
@@ -347,6 +393,8 @@ function Jugador.Atacar(dt)
         Jugador.tiempo_ataque =
             Jugador.duracion_ataque
 
+            Jugador.indice_ataque = 1
+
     end
 
 
@@ -447,6 +495,27 @@ end
 
 function Jugador.UpdateAnimacion(dt)
 
+        if Jugador.atacando then
+
+        Jugador.indice_ataque =
+            Jugador.indice_ataque +
+            Jugador.velocidad_ataque *
+            dt
+
+
+        if Jugador.indice_ataque >
+           Jugador.cantidad_ataque then
+
+            Jugador.indice_ataque =
+                Jugador.cantidad_ataque
+
+        end
+
+
+        return
+
+    end
+
     if Jugador.moviendose then
 
         Jugador.indice_walk =
@@ -496,7 +565,38 @@ function Jugador.Draw()
     local quad
 
 
-    if Jugador.moviendose then
+    -- ATTACK
+
+    if Jugador.atacando then
+
+        sprite =
+            Jugador.sprite_ataque
+
+
+        local frame =
+            math.floor(
+                Jugador.indice_ataque
+            )
+
+
+        if frame >
+           Jugador.cantidad_ataque then
+
+            frame =
+                Jugador.cantidad_ataque
+
+        end
+
+
+        quad =
+            Jugador.anim_ataque
+                [Jugador.direccion]
+                [frame]
+
+
+    -- WALK
+
+    elseif Jugador.moviendose then
 
         sprite =
             Jugador.sprite_walk
@@ -512,6 +612,9 @@ function Jugador.Draw()
             Jugador.anim_walk
                 [Jugador.direccion]
                 [frame]
+
+
+    -- IDLE
 
     else
 
