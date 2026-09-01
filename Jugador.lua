@@ -88,7 +88,7 @@ Jugador.cantidad_hurt = 5
 Jugador.cantidad_death = 7
 
 
--- COMBATE
+-- ATAQUE
 
 Jugador.ataque_x = 0
 Jugador.ataque_y = 0
@@ -105,9 +105,11 @@ Jugador.ataque_alto_vertical = 30
 
 
 Jugador.cooldown_ataque = 0
+
 Jugador.tiempo_cooldown = 0.6
 
 Jugador.tiempo_ataque = 0
+
 Jugador.duracion_ataque = 0.55
 
 
@@ -132,27 +134,47 @@ function Jugador.Load()
     Jugador.vida = 10
 
 
-    Jugador.direccion = "derecha"
-
-    Jugador.moviendose = false
-
-    Jugador.atacando = false
-    Jugador.nuevo_ataque = false
-
-    Jugador.ataque_en_movimiento = false
-
-    Jugador.hurt = false
-    Jugador.muerto = false
+    Jugador.direccion =
+        "derecha"
 
 
-    Jugador.invulnerable = false
-
-    Jugador.tiempo_invulnerable = 0
-    Jugador.tiempo_golpe = 0
+    Jugador.moviendose =
+        false
 
 
-    Jugador.cooldown_ataque = 0
-    Jugador.tiempo_ataque = 0
+    Jugador.atacando =
+        false
+
+    Jugador.nuevo_ataque =
+        false
+
+
+    Jugador.ataque_en_movimiento =
+        false
+
+
+    Jugador.hurt =
+        false
+
+    Jugador.muerto =
+        false
+
+
+    Jugador.invulnerable =
+        false
+
+    Jugador.tiempo_invulnerable =
+        0
+
+    Jugador.tiempo_golpe =
+        0
+
+
+    Jugador.cooldown_ataque =
+        0
+
+    Jugador.tiempo_ataque =
+        0
 
 
     Jugador.indice_idle = 1
@@ -275,13 +297,20 @@ function Jugador.CrearAnimaciones()
         local direccion =
             direcciones[fila + 1]
 
+
         local cantidad =
-            Jugador.cantidad_idle[direccion]
+            Jugador.cantidad_idle[
+                direccion
+            ]
 
 
         for columna = 0,
-            cantidad - 1 do  table.insert(
-                Jugador.anim_idle[direccion],
+            cantidad - 1 do
+
+            table.insert(
+                Jugador.anim_idle[
+                    direccion
+                ],
 
                 love.graphics.newQuad(
                     columna * 64,
@@ -309,7 +338,9 @@ function Jugador.CrearAnimaciones()
             Jugador.cantidad_walk - 1 do
 
             table.insert(
-                Jugador.anim_walk[direccion],
+                Jugador.anim_walk[
+                    direccion
+                ],
 
                 love.graphics.newQuad(
                     columna * 64,
@@ -325,7 +356,7 @@ function Jugador.CrearAnimaciones()
     end
 
 
-    -- ATAQUE
+    -- ATTACK
 
     for fila = 0, 3 do
 
@@ -337,7 +368,9 @@ function Jugador.CrearAnimaciones()
             Jugador.cantidad_ataque - 1 do
 
             table.insert(
-                Jugador.anim_ataque[direccion],
+                Jugador.anim_ataque[
+                    direccion
+                ],
 
                 love.graphics.newQuad(
                     columna * 64,
@@ -353,7 +386,7 @@ function Jugador.CrearAnimaciones()
     end
 
 
-    -- WALK ATAQUE
+    -- WALK ATTACK
 
     for fila = 0, 3 do
 
@@ -365,7 +398,9 @@ function Jugador.CrearAnimaciones()
             Jugador.cantidad_walk_ataque - 1 do
 
             table.insert(
-                Jugador.anim_walk_ataque[direccion],
+                Jugador.anim_walk_ataque[
+                    direccion
+                ],
 
                 love.graphics.newQuad(
                     columna * 64,
@@ -393,7 +428,9 @@ function Jugador.CrearAnimaciones()
             Jugador.cantidad_hurt - 1 do
 
             table.insert(
-                Jugador.anim_hurt[direccion],
+                Jugador.anim_hurt[
+                    direccion
+                ],
 
                 love.graphics.newQuad(
                     columna * 64,
@@ -421,7 +458,9 @@ function Jugador.CrearAnimaciones()
             Jugador.cantidad_death - 1 do
 
             table.insert(
-                Jugador.anim_death[direccion],
+                Jugador.anim_death[
+                    direccion
+                ],
 
                 love.graphics.newQuad(
                     columna * 64,
@@ -455,6 +494,69 @@ function Jugador.UpdateHitbox()
 end
 
 
+-- LIMITAR ARENA
+
+function Jugador.LimitarArena()
+
+    local mitad_ancho =
+        Jugador.hitbox_ancho / 2
+
+
+    local mitad_alto =
+        Jugador.hitbox_alto / 2
+
+
+    if Jugador.x -
+       mitad_ancho <
+       Arena.limite_izquierdo then
+
+        Jugador.x =
+            Arena.limite_izquierdo +
+            mitad_ancho
+
+    end
+
+
+    if Jugador.x +
+       mitad_ancho >
+       Arena.limite_derecho then
+
+        Jugador.x =
+            Arena.limite_derecho -
+            mitad_ancho
+
+    end
+
+
+    if Jugador.y -
+       mitad_alto <
+       Arena.limite_superior then
+
+        Jugador.y =
+            Arena.limite_superior +
+            mitad_alto
+
+    end
+
+
+    if Jugador.y +
+       mitad_alto >
+       Arena.limite_inferior then
+
+        Jugador.y =
+            Arena.limite_inferior -
+            mitad_alto
+
+    end
+
+
+    Jugador.UpdateHitbox()
+
+end
+
+
+-- INVULNERABILIDAD
+
 function Jugador.UpdateInvulnerabilidad(dt)
 
     if Jugador.invulnerable then
@@ -466,9 +568,11 @@ function Jugador.UpdateInvulnerabilidad(dt)
 
         if Jugador.tiempo_invulnerable <= 0 then
 
-            Jugador.tiempo_invulnerable = 0
+            Jugador.tiempo_invulnerable =
+                0
 
-            Jugador.invulnerable = false
+            Jugador.invulnerable =
+                false
 
         end
 
@@ -484,7 +588,8 @@ function Jugador.UpdateInvulnerabilidad(dt)
 
         if Jugador.tiempo_golpe < 0 then
 
-            Jugador.tiempo_golpe = 0
+            Jugador.tiempo_golpe =
+                0
 
         end
 
@@ -497,7 +602,8 @@ end
 
 function Jugador.UpdateMovimiento(dt)
 
-    Jugador.moviendose = false
+    Jugador.moviendose =
+        false
 
 
     if Jugador.muerto then
@@ -507,57 +613,73 @@ function Jugador.UpdateMovimiento(dt)
     end
 
 
-    if love.keyboard.isDown("w") then
+    if love.keyboard.isDown(
+        "w"
+    ) then
 
         Jugador.y =
             Jugador.y -
             Jugador.velocidad *
             dt
 
-        Jugador.direccion = "arriba"
+        Jugador.direccion =
+            "arriba"
 
-        Jugador.moviendose = true
+        Jugador.moviendose =
+            true
 
 
-    elseif love.keyboard.isDown("s") then
+    elseif love.keyboard.isDown(
+        "s"
+    ) then
 
         Jugador.y =
             Jugador.y +
             Jugador.velocidad *
             dt
 
-        Jugador.direccion = "abajo"
+        Jugador.direccion =
+            "abajo"
 
-        Jugador.moviendose = true
+        Jugador.moviendose =
+            true
 
 
-    elseif love.keyboard.isDown("a") then
+    elseif love.keyboard.isDown(
+        "a"
+    ) then
 
         Jugador.x =
             Jugador.x -
             Jugador.velocidad *
             dt
 
-        Jugador.direccion = "izquierda"
+        Jugador.direccion =
+            "izquierda"
 
-        Jugador.moviendose = true
+        Jugador.moviendose =
+            true
 
 
-    elseif love.keyboard.isDown("d") then
+    elseif love.keyboard.isDown(
+        "d"
+    ) then
 
         Jugador.x =
             Jugador.x +
             Jugador.velocidad *
             dt
 
-        Jugador.direccion = "derecha"
+        Jugador.direccion =
+            "derecha"
 
-        Jugador.moviendose = true
+        Jugador.moviendose =
+            true
 
     end
 
 
-    Jugador.UpdateHitbox()
+    Jugador.LimitarArena()
 
 end
 
@@ -566,20 +688,20 @@ end
 
 function Jugador.Atacar(dt)
 
-    Jugador.nuevo_ataque = false
+    Jugador.nuevo_ataque =
+        false
 
 
     if Jugador.hurt
        or Jugador.muerto then
 
-        Jugador.atacando = false
+        Jugador.atacando =
+            false
 
         return
 
     end
 
-
-    -- COOLDOWN
 
     if Jugador.cooldown_ataque > 0 then
 
@@ -590,33 +712,37 @@ function Jugador.Atacar(dt)
     end
 
 
-    -- DURACION
-
     if Jugador.tiempo_ataque > 0 then
 
         Jugador.tiempo_ataque =
             Jugador.tiempo_ataque -
             dt
 
-        Jugador.atacando = true
+        Jugador.atacando =
+            true
 
     else
 
-        Jugador.tiempo_ataque = 0
+        Jugador.tiempo_ataque =
+            0
 
-        Jugador.atacando = false
+        Jugador.atacando =
+            false
 
     end
 
 
-    -- INICIAR
-
-    if love.keyboard.isDown("space")
+    if love.keyboard.isDown(
+        "space"
+    )
        and Jugador.cooldown_ataque <= 0
        and not Jugador.atacando then
 
-        Jugador.atacando = true
-        Jugador.nuevo_ataque = true
+        Jugador.atacando =
+            true
+
+        Jugador.nuevo_ataque =
+            true
 
 
         Jugador.ataque_en_movimiento =
@@ -631,92 +757,98 @@ function Jugador.Atacar(dt)
             Jugador.duracion_ataque
 
 
-        Jugador.indice_ataque = 1
-        Jugador.indice_walk_ataque = 1
+        Jugador.indice_ataque =
+            1
+
+        Jugador.indice_walk_ataque =
+            1
 
     end
 
 
-    -- HITBOX ATAQUE
+    if not Jugador.atacando then
 
-    if Jugador.atacando then
+        return
 
-
-
-        if Jugador.direccion == "derecha" then
-
-            Jugador.ataque_ancho =
-                Jugador.ataque_ancho_horizontal
-
-            Jugador.ataque_alto =
-                Jugador.ataque_alto_horizontal
+    end
 
 
-            Jugador.ataque_x =
-                Jugador.x +
-                Jugador.hitbox_ancho / 2
+    if Jugador.direccion ==
+       "derecha" then
 
-            Jugador.ataque_y =
-                Jugador.y -
-                Jugador.ataque_alto / 2
+        Jugador.ataque_ancho =
+            Jugador.ataque_ancho_horizontal
 
-
-        elseif Jugador.direccion == "izquierda" then
-
-            Jugador.ataque_ancho =
-                Jugador.ataque_ancho_horizontal
-
-            Jugador.ataque_alto =
-                Jugador.ataque_alto_horizontal
+        Jugador.ataque_alto =
+            Jugador.ataque_alto_horizontal
 
 
-            Jugador.ataque_x =
-                Jugador.x -
-                Jugador.hitbox_ancho / 2 -
-                Jugador.ataque_ancho
+        Jugador.ataque_x =
+            Jugador.x +
+            Jugador.hitbox_ancho / 2
 
-            Jugador.ataque_y =
-                Jugador.y -
-                Jugador.ataque_alto / 2
-
-
-        elseif Jugador.direccion == "arriba" then
-
-            Jugador.ataque_ancho =
-                Jugador.ataque_ancho_vertical
-
-            Jugador.ataque_alto =
-                Jugador.ataque_alto_vertical
+        Jugador.ataque_y =
+            Jugador.y -
+            Jugador.ataque_alto / 2
 
 
-            Jugador.ataque_x =
-                Jugador.x -
-                Jugador.ataque_ancho / 2
+    elseif Jugador.direccion ==
+           "izquierda" then
 
-            Jugador.ataque_y =
-                Jugador.y -
-                Jugador.hitbox_alto / 2 -
-                Jugador.ataque_alto
+        Jugador.ataque_ancho =
+            Jugador.ataque_ancho_horizontal
 
-
-        elseif Jugador.direccion == "abajo" then
-
-            Jugador.ataque_ancho =
-                Jugador.ataque_ancho_vertical
-
-            Jugador.ataque_alto =
-                Jugador.ataque_alto_vertical
+        Jugador.ataque_alto =
+            Jugador.ataque_alto_horizontal
 
 
-            Jugador.ataque_x =
-                Jugador.x -
-                Jugador.ataque_ancho / 2
+        Jugador.ataque_x =
+            Jugador.x -
+            Jugador.hitbox_ancho / 2 -
+            Jugador.ataque_ancho
 
-            Jugador.ataque_y =
-                Jugador.y +
-                Jugador.hitbox_alto / 2
+        Jugador.ataque_y =
+            Jugador.y -
+            Jugador.ataque_alto / 2
 
-        end
+
+    elseif Jugador.direccion ==
+           "arriba" then
+
+        Jugador.ataque_ancho =
+            Jugador.ataque_ancho_vertical
+
+        Jugador.ataque_alto =
+            Jugador.ataque_alto_vertical
+
+
+        Jugador.ataque_x =
+            Jugador.x -
+            Jugador.ataque_ancho / 2
+
+        Jugador.ataque_y =
+            Jugador.y -
+            Jugador.hitbox_alto / 2 -
+            Jugador.ataque_alto
+
+
+    elseif Jugador.direccion ==
+           "abajo" then
+
+        Jugador.ataque_ancho =
+            Jugador.ataque_ancho_vertical
+
+        Jugador.ataque_alto =
+            Jugador.ataque_alto_vertical
+
+
+        Jugador.ataque_x =
+            Jugador.x -
+            Jugador.ataque_ancho / 2
+
+        Jugador.ataque_y =
+            Jugador.y +
+            Jugador.hitbox_alto / 2
 
     end
 
@@ -764,9 +896,11 @@ function Jugador.UpdateAnimacion(dt)
         if Jugador.indice_hurt >
            Jugador.cantidad_hurt then
 
-            Jugador.indice_hurt = 1
+            Jugador.indice_hurt =
+                1
 
-            Jugador.hurt = false
+            Jugador.hurt =
+                false
 
         end
 
@@ -776,7 +910,7 @@ function Jugador.UpdateAnimacion(dt)
     end
 
 
-    -- WALK ATAQUE
+    -- WALK ATTACK
 
     if Jugador.atacando
        and Jugador.ataque_en_movimiento then
@@ -801,7 +935,7 @@ function Jugador.UpdateAnimacion(dt)
     end
 
 
-    -- ATAQUE
+    -- ATTACK
 
     if Jugador.atacando then
 
@@ -838,7 +972,8 @@ function Jugador.UpdateAnimacion(dt)
         if Jugador.indice_walk >=
            Jugador.cantidad_walk + 1 then
 
-            Jugador.indice_walk = 1
+            Jugador.indice_walk =
+                1
 
         end
 
@@ -865,7 +1000,8 @@ function Jugador.UpdateAnimacion(dt)
     if Jugador.indice_idle >=
        cantidad + 1 then
 
-        Jugador.indice_idle = 1
+        Jugador.indice_idle =
+            1
 
     end
 
@@ -874,7 +1010,9 @@ end
 
 -- RECIBIR GOLPE
 
-function Jugador.RecibirGolpe(cantidad)
+function Jugador.RecibirGolpe(
+    cantidad
+)
 
     if Jugador.invulnerable
        or Jugador.muerto then
@@ -891,12 +1029,14 @@ function Jugador.RecibirGolpe(cantidad)
 
     if Jugador.vida < 0 then
 
-        Jugador.vida = 0
+        Jugador.vida =
+            0
 
     end
 
 
-    Jugador.invulnerable = true
+    Jugador.invulnerable =
+        true
 
 
     Jugador.tiempo_invulnerable =
@@ -907,29 +1047,31 @@ function Jugador.RecibirGolpe(cantidad)
         Jugador.duracion_golpe
 
 
-    -- CANCELAR ATAQUE
+    Jugador.atacando =
+        false
 
-    Jugador.atacando = false
-    Jugador.tiempo_ataque = 0
+    Jugador.tiempo_ataque =
+        0
 
-
-    -- MUERTE
 
     if Jugador.vida <= 0 then
 
-        Jugador.muerto = true
-        Jugador.hurt = false
+        Jugador.muerto =
+            true
 
-        Jugador.indice_death = 1
+        Jugador.hurt =
+            false
 
-
-    -- HURT
+        Jugador.indice_death =
+            1
 
     else
 
-        Jugador.hurt = true
+        Jugador.hurt =
+            true
 
-        Jugador.indice_hurt = 1
+        Jugador.indice_hurt =
+            1
 
     end
 
@@ -939,6 +1081,29 @@ end
 -- DRAW
 
 function Jugador.Draw()
+
+    local mostrar =
+        true
+
+
+    if not Jugador.muerto
+       and Jugador.tiempo_golpe > 0 then
+
+        mostrar =
+            math.floor(
+                Jugador.tiempo_golpe *
+                8
+            ) % 2 == 0
+
+    end
+
+
+    if not mostrar then
+
+        return
+
+    end
+
 
     local sprite
     local quad
@@ -969,8 +1134,8 @@ function Jugador.Draw()
 
         quad =
             Jugador.anim_death
-                [Jugador.direccion]
-                [frame]
+            [Jugador.direccion]
+            [frame]
 
 
     -- HURT
@@ -998,11 +1163,11 @@ function Jugador.Draw()
 
         quad =
             Jugador.anim_hurt
-                [Jugador.direccion]
-                [frame]
+            [Jugador.direccion]
+            [frame]
 
 
-    -- WALK ATAQUE
+    -- WALK ATTACK
 
     elseif Jugador.atacando
        and Jugador.ataque_en_movimiento then
@@ -1028,11 +1193,11 @@ function Jugador.Draw()
 
         quad =
             Jugador.anim_walk_ataque
-                [Jugador.direccion]
-                [frame]
+            [Jugador.direccion]
+            [frame]
 
 
-    -- ATAQUE
+    -- ATTACK
 
     elseif Jugador.atacando then
 
@@ -1057,8 +1222,8 @@ function Jugador.Draw()
 
         quad =
             Jugador.anim_ataque
-                [Jugador.direccion]
-                [frame]
+            [Jugador.direccion]
+            [frame]
 
 
     -- WALK
@@ -1078,16 +1243,16 @@ function Jugador.Draw()
         if frame >
            Jugador.cantidad_walk then
 
-            frame = 1
-            Jugador.indice_walk = 1
+            frame =
+                1
 
         end
 
 
         quad =
             Jugador.anim_walk
-                [Jugador.direccion]
-                [frame]
+            [Jugador.direccion]
+            [frame]
 
 
     -- IDLE
@@ -1110,54 +1275,41 @@ function Jugador.Draw()
             )
 
 
-        if frame > cantidad then
+        if frame >
+           cantidad then
 
-            frame = 1
-
-            Jugador.indice_idle = 1
+            frame =
+                1
 
         end
 
 
         quad =
             Jugador.anim_idle
-                [Jugador.direccion]
-                [frame]
+            [Jugador.direccion]
+            [frame]
 
     end
 
 
-    -- PARPADEO AL RECIBIR GOLPE
-
-    local mostrar = true
-
-
-    if not Jugador.muerto
-       and Jugador.tiempo_golpe > 0 then
-
-        mostrar =
-            math.floor(
-                Jugador.tiempo_golpe * 8
-            ) % 2 == 0
-
-    end
+    love.graphics.setColor(
+        1,
+        1,
+        1
+    )
 
 
-    if mostrar then
-
-        love.graphics.draw(
-            sprite,
-            quad,
-            Jugador.x,
-            Jugador.y,
-            0,
-            Jugador.escala,
-            Jugador.escala,
-            Jugador.origen_x,
-            Jugador.origen_y
-        )
-
-    end
+    love.graphics.draw(
+        sprite,
+        quad,
+        Jugador.x,
+        Jugador.y,
+        0,
+        Jugador.escala,
+        Jugador.escala,
+        Jugador.origen_x,
+        Jugador.origen_y
+    )
 
 end
 

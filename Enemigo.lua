@@ -30,7 +30,6 @@ function Enemigo:Load(
     enemigo.x = x
     enemigo.y = y
 
-
     enemigo.velocidad =
         velocidad
 
@@ -41,7 +40,6 @@ function Enemigo:Load(
     enemigo.origen_x = 32
     enemigo.origen_y = 32
 
-
     enemigo.direccion =
         "derecha"
 
@@ -49,6 +47,7 @@ function Enemigo:Load(
     -- COMBATE
 
     enemigo.vida = 3
+    enemigo.vida_maxima = 3
 
     enemigo.activo = true
 
@@ -58,8 +57,11 @@ function Enemigo:Load(
 
     enemigo.tocando_jugador = false
 
-    enemigo.golpe_jugador_registrado = false
-    enemigo.golpeado_ataque = false
+    enemigo.golpe_jugador_registrado =
+        false
+
+    enemigo.golpeado_ataque =
+        false
 
 
     -- HITBOX
@@ -188,116 +190,70 @@ function Enemigo:CrearAnimaciones()
     }
 
 
-    -- WALK
+    local function CrearFrames(
+        destino,
+        cantidad,
+        sprite
+    )
 
-    for fila = 0, 3 do
+        for fila = 0, 3 do
 
-        local direccion =
-            direcciones[fila + 1]
+            local direccion =
+                direcciones[
+                    fila + 1
+                ]
 
 
-        for columna = 0,
-            self.cantidad_walk - 1 do
+            for columna = 0,
+                cantidad - 1 do
 
-            table.insert(
-                self.anim_walk[direccion],
+                table.insert(
+                    destino[
+                        direccion
+                    ],
 
-                love.graphics.newQuad(
-                    columna * 64,
-                    fila * 64,
-                    64,
-                    64,
-                    self.sprite_walk
+                    love.graphics.newQuad(
+                        columna * 64,
+                        fila * 64,
+                        64,
+                        64,
+                        sprite
+                    )
                 )
-            )
+
+            end
 
         end
 
     end
 
 
-    -- ATTACK
-
-    for fila = 0, 3 do
-
-        local direccion =
-            direcciones[fila + 1]
-
-
-        for columna = 0,
-            self.cantidad_attack - 1 do
-
-            table.insert(
-                self.anim_attack[direccion],
-
-                love.graphics.newQuad(
-                    columna * 64,
-                    fila * 64,
-                    64,
-                    64,
-                    self.sprite_attack
-                )
-            )
-
-        end
-
-    end
+    CrearFrames(
+        self.anim_walk,
+        self.cantidad_walk,
+        self.sprite_walk
+    )
 
 
-    -- HURT
-
-    for fila = 0, 3 do
-
-        local direccion =
-            direcciones[fila + 1]
-
-
-        for columna = 0,
-            self.cantidad_hurt - 1 do
-
-            table.insert(
-                self.anim_hurt[direccion],
-
-                love.graphics.newQuad(
-                    columna * 64,
-                    fila * 64,
-                    64,
-                    64,
-                    self.sprite_hurt
-                )
-            )
-
-        end
-
-    end
+    CrearFrames(
+        self.anim_attack,
+        self.cantidad_attack,
+        self.sprite_attack
+    )
 
 
-    -- DEATH
+    CrearFrames(
+        self.anim_hurt,
+        self.cantidad_hurt,
+        self.sprite_hurt
+    )
 
-    for fila = 0, 3 do
 
-        local direccion =
-            direcciones[fila + 1]
-
-
-        for columna = 0,
-            self.cantidad_death - 1 do
-
-            table.insert(
-                self.anim_death[direccion],
-
-                love.graphics.newQuad(
-                    columna * 64,
-                    fila * 64,
-                    64,
-                    64,
-                    self.sprite_death
-                )
-            )
-
-        end
-
-    end
+    CrearFrames(
+        self.anim_death,
+        self.cantidad_death,
+        self.sprite_death
+    )
 
 end
 
@@ -316,6 +272,81 @@ function Enemigo:UpdateHitbox()
         self.y -
         self.hitbox_alto / 2 +
         self.hitbox_offset_y
+
+end
+
+
+-- LIMITAR ARENA
+
+function Enemigo:LimitarArena()
+
+    local centro_x =
+        self.x +
+        self.hitbox_offset_x
+
+
+    local centro_y =
+        self.y +
+        self.hitbox_offset_y
+
+
+    local mitad_ancho =
+        self.hitbox_ancho / 2
+
+
+    local mitad_alto =
+        self.hitbox_alto / 2
+
+
+    if centro_x -
+       mitad_ancho <
+       Arena.limite_izquierdo then
+
+        self.x =
+            Arena.limite_izquierdo -
+            self.hitbox_offset_x +
+            mitad_ancho
+
+    end
+
+
+    if centro_x +
+       mitad_ancho >
+       Arena.limite_derecho then
+
+        self.x =
+            Arena.limite_derecho -
+            self.hitbox_offset_x -
+            mitad_ancho
+
+    end
+
+
+    if centro_y -
+       mitad_alto <
+       Arena.limite_superior then
+
+        self.y =
+            Arena.limite_superior -
+            self.hitbox_offset_y +
+            mitad_alto
+
+    end
+
+
+    if centro_y +
+       mitad_alto >
+       Arena.limite_inferior then
+
+        self.y =
+            Arena.limite_inferior -
+            self.hitbox_offset_y -
+            mitad_alto
+
+    end
+
+
+    self:UpdateHitbox()
 
 end
 
@@ -340,7 +371,6 @@ function Enemigo:Perseguir(
 
     if math.abs(dx) >
        math.abs(dy) then
-
 
         if dx < 0 then
 
@@ -368,7 +398,6 @@ function Enemigo:Perseguir(
 
     else
 
-
         if dy < 0 then
 
             self.y =
@@ -394,6 +423,9 @@ function Enemigo:Perseguir(
 
     end
 
+
+    self:LimitarArena()
+
 end
 
 
@@ -411,9 +443,11 @@ function Enemigo:IniciarAtaque()
     end
 
 
-    self.atacando = true
+    self.atacando =
+        true
 
-    self.indice_attack = 1
+    self.indice_attack =
+        1
 
 end
 
@@ -443,6 +477,10 @@ function Enemigo:Update(
 
     if self.muerto then
 
+        self.tocando_jugador =
+            false
+
+
         self.indice_death =
             self.indice_death +
             self.velocidad_death *
@@ -455,7 +493,8 @@ function Enemigo:Update(
             self.indice_death =
                 self.cantidad_death
 
-            self.activo = false
+            self.activo =
+                false
 
         end
 
@@ -469,6 +508,10 @@ function Enemigo:Update(
 
     if self.hurt then
 
+        self.tocando_jugador =
+            false
+
+
         self.indice_hurt =
             self.indice_hurt +
             self.velocidad_hurt *
@@ -478,9 +521,11 @@ function Enemigo:Update(
         if self.indice_hurt >=
            self.cantidad_hurt + 1 then
 
-            self.indice_hurt = 1
+            self.indice_hurt =
+                1
 
-            self.hurt = false
+            self.hurt =
+                false
 
         end
 
@@ -490,35 +535,41 @@ function Enemigo:Update(
     end
 
 
-    -- ATTACK
+ -- ATTACK
 
-    if self.atacando then
+if self.atacando then
+
+    self.indice_attack =
+        self.indice_attack +
+        self.velocidad_attack *
+        dt
+
+
+    if self.indice_attack >=
+       self.cantidad_attack + 1 then
 
         self.indice_attack =
-            self.indice_attack +
-            self.velocidad_attack *
-            dt
+            1
 
+        self.atacando =
+            false
 
-        if self.indice_attack >=
-           self.cantidad_attack + 1 then
-
-            self.indice_attack = 1
-
-            self.atacando = false
-
-        end
-
-
-        return
+        self.golpe_jugador_registrado =
+            false
 
     end
+
+
+    return
+
+end
 
 
     -- MOVIMIENTO
 
     local x_anterior =
         self.x
+
 
     local y_anterior =
         self.y
@@ -567,8 +618,6 @@ function Enemigo:Update(
     end
 
 
-    -- WALK
-
     self.indice_walk =
         self.indice_walk +
         self.velocidad_walk *
@@ -578,7 +627,8 @@ function Enemigo:Update(
     if self.indice_walk >=
        self.cantidad_walk + 1 then
 
-        self.indice_walk = 1
+        self.indice_walk =
+            1
 
     end
 
@@ -641,6 +691,7 @@ function Enemigo:ResolverColision(
         self.hitbox_x +
         self.hitbox_ancho / 2
 
+
     local centro_self_y =
         self.hitbox_y +
         self.hitbox_alto / 2
@@ -650,6 +701,7 @@ function Enemigo:ResolverColision(
         otro.hitbox_x +
         otro.hitbox_ancho / 2
 
+
     local centro_otro_y =
         otro.hitbox_y +
         otro.hitbox_alto / 2
@@ -658,6 +710,7 @@ function Enemigo:ResolverColision(
     local distancia_x =
         centro_otro_x -
         centro_self_x
+
 
     local distancia_y =
         centro_otro_y -
@@ -669,7 +722,10 @@ function Enemigo:ResolverColision(
             self.hitbox_ancho / 2 +
             otro.hitbox_ancho / 2
         )
-        - math.abs(distancia_x)
+        -
+        math.abs(
+            distancia_x
+        )
 
 
     local penetracion_y =
@@ -677,10 +733,11 @@ function Enemigo:ResolverColision(
             self.hitbox_alto / 2 +
             otro.hitbox_alto / 2
         )
-        - math.abs(distancia_y)
+        -
+        math.abs(
+            distancia_y
+        )
 
-
-    -- SEPARAR POR EL EJE DE MENOR PENETRACION
 
     if penetracion_x <
        penetracion_y then
@@ -698,7 +755,6 @@ function Enemigo:ResolverColision(
             otro.x =
                 otro.x -
                 separacion
-
 
         else
 
@@ -729,7 +785,6 @@ function Enemigo:ResolverColision(
                 otro.y -
                 separacion
 
-
         else
 
             self.y =
@@ -745,11 +800,9 @@ function Enemigo:ResolverColision(
     end
 
 
-    self:UpdateHitbox()
-    otro:UpdateHitbox()
+    self:LimitarArena()
+    otro:LimitarArena()
 
-
-    -- COMPROBAR SELF CONTRA JUGADOR
 
     if Colisiones.AABB(
         self.hitbox_x,
@@ -773,8 +826,6 @@ function Enemigo:ResolverColision(
 
     end
 
-
-    -- COMPROBAR OTRO CONTRA JUGADOR
 
     if Colisiones.AABB(
         otro.hitbox_x,
@@ -803,7 +854,9 @@ end
 
 -- RECIBIR GOLPE
 
-function Enemigo:RecibirGolpe(cantidad)
+function Enemigo:RecibirGolpe(
+    cantidad
+)
 
     if not self.activo
        or self.muerto then
@@ -820,25 +873,138 @@ function Enemigo:RecibirGolpe(cantidad)
 
     if self.vida <= 0 then
 
-        self.vida = 0
+        self.vida =
+            0
 
-        self.muerto = true
+        self.muerto =
+            true
 
-        self.atacando = false
-        self.hurt = false
+        self.atacando =
+            false
 
-        self.indice_death = 1
+        self.hurt =
+            false
+
+        self.tocando_jugador =
+            false
+
+        self.indice_death =
+            1
 
 
     else
 
-        self.atacando = false
+        self.atacando =
+            false
 
-        self.hurt = true
+        self.hurt =
+            true
 
-        self.indice_hurt = 1
+        self.indice_hurt =
+            1
 
     end
+
+end
+
+
+-- BARRA DE VIDA
+
+function Enemigo:DibujarBarraVida()
+
+    if not self.activo
+       or self.muerto then
+
+        return
+
+    end
+
+
+    local ancho =
+        50
+
+
+    local alto =
+        6
+
+
+    local x =
+        self.x -
+        ancho / 2
+
+
+    local y =
+        self.y -
+        60
+
+
+    local porcentaje =
+        self.vida /
+        self.vida_maxima
+
+
+    if porcentaje < 0 then
+
+        porcentaje =
+            0
+
+    end
+
+
+    love.graphics.setColor(
+        0.2,
+        0.2,
+        0.2
+    )
+
+
+    love.graphics.rectangle(
+        "fill",
+        x,
+        y,
+        ancho,
+        alto
+    )
+
+
+    love.graphics.setColor(
+        0.8,
+        0.1,
+        0.1
+    )
+
+
+    love.graphics.rectangle(
+        "fill",
+        x,
+        y,
+        ancho *
+        porcentaje,
+        alto
+    )
+
+
+    love.graphics.setColor(
+        0,
+        0,
+        0
+    )
+
+
+    love.graphics.rectangle(
+        "line",
+        x,
+        y,
+        ancho,
+        alto
+    )
+
+
+    love.graphics.setColor(
+        1,
+        1,
+        1
+    )
 
 end
 
@@ -857,8 +1023,6 @@ function Enemigo:Draw()
     local sprite
     local quad
 
-
-    -- DEATH
 
     if self.muerto then
 
@@ -883,11 +1047,9 @@ function Enemigo:Draw()
 
         quad =
             self.anim_death
-                [self.direccion]
-                [frame]
+            [self.direccion]
+            [frame]
 
-
-    -- HURT
 
     elseif self.hurt then
 
@@ -912,11 +1074,9 @@ function Enemigo:Draw()
 
         quad =
             self.anim_hurt
-                [self.direccion]
-                [frame]
+            [self.direccion]
+            [frame]
 
-
-    -- ATTACK
 
     elseif self.atacando then
 
@@ -941,11 +1101,9 @@ function Enemigo:Draw()
 
         quad =
             self.anim_attack
-                [self.direccion]
-                [frame]
+            [self.direccion]
+            [frame]
 
-
-    -- WALK
 
     else
 
@@ -962,19 +1120,25 @@ function Enemigo:Draw()
         if frame >
            self.cantidad_walk then
 
-            frame = 1
-
-            self.indice_walk = 1
+            frame =
+                1
 
         end
 
 
         quad =
             self.anim_walk
-                [self.direccion]
-                [frame]
+            [self.direccion]
+            [frame]
 
     end
+
+
+    love.graphics.setColor(
+        1,
+        1,
+        1
+    )
 
 
     love.graphics.draw(
