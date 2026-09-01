@@ -42,6 +42,51 @@ Jugador.cantidad_idle = {
 
 Jugador.cantidad_walk = 6
 
+-- COMBATE
+
+Jugador.atacando = false
+
+Jugador.ataque_x = 0
+Jugador.ataque_y = 0
+
+Jugador.ataque_ancho = 0
+Jugador.ataque_alto = 0
+
+
+Jugador.ataque_ancho_horizontal = 30
+Jugador.ataque_alto_horizontal = 35
+
+Jugador.ataque_ancho_vertical = 35
+Jugador.ataque_alto_vertical = 30
+
+
+Jugador.cooldown_ataque = 0
+Jugador.tiempo_cooldown = 0.6
+
+Jugador.tiempo_ataque = 0
+Jugador.duracion_ataque = 0.55
+
+
+Jugador.sprite_idle = nil
+Jugador.sprite_walk = nil
+
+Jugador.anim_idle = {}
+Jugador.anim_walk = {}
+
+Jugador.indice_idle = 1
+Jugador.indice_walk = 1
+
+Jugador.velocidad_idle = 8
+Jugador.velocidad_walk = 10
+
+Jugador.cantidad_idle = {
+    abajo = 12,
+    izquierda = 12,
+    derecha = 12,
+    arriba = 4
+}
+
+Jugador.cantidad_walk = 6
 
 -- LOAD
 
@@ -52,6 +97,17 @@ function Jugador.Load()
 
     Jugador.direccion = "derecha"
     Jugador.moviendose = false
+
+     Jugador.atacando = false
+
+    Jugador.cooldown_ataque = 0
+    Jugador.tiempo_ataque = 0
+
+    Jugador.ataque_x = 0
+    Jugador.ataque_y = 0
+
+    Jugador.ataque_ancho = 0
+    Jugador.ataque_alto = 0
 
     Jugador.indice_idle = 1
     Jugador.indice_walk = 1
@@ -239,6 +295,148 @@ function Jugador.UpdateMovimiento(dt)
 
 end
 
+-- ATAQUE
+
+function Jugador.Atacar(dt)
+
+    
+
+    if Jugador.cooldown_ataque > 0 then
+
+        Jugador.cooldown_ataque =
+            Jugador.cooldown_ataque -
+            dt
+
+    end
+
+
+    -- DURACION DEL ATAQUE
+
+    if Jugador.tiempo_ataque > 0 then
+
+        Jugador.tiempo_ataque =
+            Jugador.tiempo_ataque -
+            dt
+
+        Jugador.atacando = true
+
+    else
+
+        Jugador.tiempo_ataque = 0
+        Jugador.atacando = false
+
+    end
+
+
+    -- INICIAR ATAQUE
+
+    if love.keyboard.isDown("space")
+       and Jugador.cooldown_ataque <= 0
+       and not Jugador.atacando then
+
+        Jugador.atacando = true
+
+        Jugador.cooldown_ataque =
+            Jugador.tiempo_cooldown
+
+        Jugador.tiempo_ataque =
+            Jugador.duracion_ataque
+
+    end
+
+
+    -- HITBOX DEL ATAQUE
+
+    if Jugador.atacando then
+
+
+        
+
+        if Jugador.direccion == "derecha" then
+
+            Jugador.ataque_ancho =
+                Jugador.ataque_ancho_horizontal
+
+            Jugador.ataque_alto =
+                Jugador.ataque_alto_horizontal
+
+
+            Jugador.ataque_x =
+                Jugador.x +
+                Jugador.hitbox_ancho / 2
+
+            Jugador.ataque_y =
+                Jugador.y -
+                Jugador.ataque_alto / 2
+
+
+        
+
+        elseif Jugador.direccion == "izquierda" then
+
+            Jugador.ataque_ancho =
+                Jugador.ataque_ancho_horizontal
+
+            Jugador.ataque_alto =
+                Jugador.ataque_alto_horizontal
+
+
+            Jugador.ataque_x =
+                Jugador.x -
+                Jugador.hitbox_ancho / 2 -
+                Jugador.ataque_ancho
+
+            Jugador.ataque_y =
+                Jugador.y -
+                Jugador.ataque_alto / 2
+
+
+        
+
+        elseif Jugador.direccion == "arriba" then
+
+            Jugador.ataque_ancho =
+                Jugador.ataque_ancho_vertical
+
+            Jugador.ataque_alto =
+                Jugador.ataque_alto_vertical
+
+
+            Jugador.ataque_x =
+                Jugador.x -
+                Jugador.ataque_ancho / 2
+
+            Jugador.ataque_y =
+                Jugador.y -
+                Jugador.hitbox_alto / 2 -
+                Jugador.ataque_alto
+
+
+        
+
+        elseif Jugador.direccion == "abajo" then
+
+            Jugador.ataque_ancho =
+                Jugador.ataque_ancho_vertical
+
+            Jugador.ataque_alto =
+                Jugador.ataque_alto_vertical
+
+
+            Jugador.ataque_x =
+                Jugador.x -
+                Jugador.ataque_ancho / 2
+
+            Jugador.ataque_y =
+                Jugador.y +
+                Jugador.hitbox_alto / 2
+
+        end
+
+    end
+
+end
+
 
 -- UPDATE ANIMACION
 
@@ -364,5 +562,17 @@ function Jugador.Debug()
         Jugador.y,
         2
     )
+
+        if Jugador.atacando then
+
+        love.graphics.rectangle(
+            "line",
+            Jugador.ataque_x,
+            Jugador.ataque_y,
+            Jugador.ataque_ancho,
+            Jugador.ataque_alto
+        )
+
+    end
 
 end

@@ -154,6 +154,9 @@ function love.update(dt)
 
     end
 
+        -- ATAQUE JUGADOR
+
+    Jugador.Atacar(dt)
 
     Jugador.UpdateAnimacion(dt)
 

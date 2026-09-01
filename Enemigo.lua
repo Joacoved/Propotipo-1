@@ -390,6 +390,7 @@ function Enemigo:ResolverColision(
 
 
     -- SEPARAR POR EL EJE DE MENOR PENETRACION
+  
 
     if penetracion_x <
        penetracion_y then
@@ -456,6 +457,7 @@ function Enemigo:ResolverColision(
 
 
     -- COMPROBAR SELF CONTRA EL JUGADOR
+   
 
     if Colisiones.AABB(
         self.hitbox_x,
@@ -481,6 +483,7 @@ function Enemigo:ResolverColision(
 
 
     -- COMPROBAR OTRO CONTRA EL JUGADOR
+   
 
     if Colisiones.AABB(
         otro.hitbox_x,
