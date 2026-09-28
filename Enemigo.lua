@@ -1,3 +1,19 @@
+local MaquinaEstado =
+    require("estados.maquina_estado")
+
+local EstadoWalk =
+    require("estados.enemigo.estado_walk")
+
+local EstadoAttack =
+    require("estados.enemigo.estado_attack")
+
+local EstadoHurt =
+    require("estados.enemigo.estado_hurt")
+
+local EstadoDeath =
+    require("estados.enemigo.estado_death")
+
+
 Enemigo = {}
 
 Enemigo.__index = Enemigo
@@ -54,6 +70,9 @@ function Enemigo:Load(
     enemigo.atacando = false
     enemigo.hurt = false
     enemigo.muerto = false
+
+    enemigo.maquina_estado = nil
+    enemigo.estado_actual = "walk"
 
     enemigo.tocando_jugador = false
 
@@ -138,10 +157,104 @@ function Enemigo:Load(
 
     enemigo:CrearAnimaciones()
 
+    enemigo.maquina_estado =
+    MaquinaEstado:Load({
+
+        walk = function()
+            return EstadoWalk:Load(
+                enemigo
+            )
+        end,
+
+        attack = function()
+            return EstadoAttack:Load(
+                enemigo
+            )
+        end,
+
+        hurt = function()
+            return EstadoHurt:Load(
+                enemigo
+            )
+        end,
+
+        death = function()
+            return EstadoDeath:Load(
+                enemigo
+            )
+        end
+
+    })
+
+
+enemigo.estado_actual =
+    "walk"
+
+
+enemigo.maquina_estado:Cambiar(
+    "walk"
+)
+
     enemigo:UpdateHitbox()
 
 
     return enemigo
+
+end
+
+-- CAMBIAR ESTADO
+
+function Enemigo:CambiarEstado(
+    nuevo_estado
+)
+
+    if self.estado_actual ==
+       nuevo_estado then
+
+        return
+
+    end
+
+
+    self.estado_actual =
+        nuevo_estado
+
+
+    self.maquina_estado:Cambiar(
+        nuevo_estado
+    )
+
+end
+
+-- ACTUALIZAR ESTADO
+
+function Enemigo:ActualizarEstado()
+
+    if self.muerto then
+
+        self:CambiarEstado(
+            "death"
+        )
+
+    elseif self.hurt then
+
+        self:CambiarEstado(
+            "hurt"
+        )
+
+    elseif self.atacando then
+
+        self:CambiarEstado(
+            "attack"
+        )
+
+    else
+
+        self:CambiarEstado(
+            "walk"
+        )
+
+    end
 
 end
 
@@ -475,90 +588,37 @@ function Enemigo:Update(
 
     -- DEATH
 
-    if self.muerto then
+if self.muerto then
 
-        self.tocando_jugador =
-            false
+    self:ActualizarEstado()
 
+    self.maquina_estado:Update(dt)
 
-        self.indice_death =
-            self.indice_death +
-            self.velocidad_death *
-            dt
+    return
 
-
-        if self.indice_death >=
-           self.cantidad_death + 1 then
-
-            self.indice_death =
-                self.cantidad_death
-
-            self.activo =
-                false
-
-        end
-
-
-        return
-
-    end
+end
 
 
     -- HURT
 
-    if self.hurt then
+if self.hurt then
 
-        self.tocando_jugador =
-            false
+    self:ActualizarEstado()
 
+    self.maquina_estado:Update(dt)
 
-        self.indice_hurt =
-            self.indice_hurt +
-            self.velocidad_hurt *
-            dt
+    return
 
-
-        if self.indice_hurt >=
-           self.cantidad_hurt + 1 then
-
-            self.indice_hurt =
-                1
-
-            self.hurt =
-                false
-
-        end
-
-
-        return
-
-    end
+end
 
 
  -- ATTACK
 
 if self.atacando then
 
-    self.indice_attack =
-        self.indice_attack +
-        self.velocidad_attack *
-        dt
+    self:ActualizarEstado()
 
-
-    if self.indice_attack >=
-       self.cantidad_attack + 1 then
-
-        self.indice_attack =
-            1
-
-        self.atacando =
-            false
-
-        self.golpe_jugador_registrado =
-            false
-
-    end
-
+    self.maquina_estado:Update(dt)
 
     return
 
@@ -618,19 +678,9 @@ end
     end
 
 
-    self.indice_walk =
-        self.indice_walk +
-        self.velocidad_walk *
-        dt
+self:ActualizarEstado()
 
-
-    if self.indice_walk >=
-       self.cantidad_walk + 1 then
-
-        self.indice_walk =
-            1
-
-    end
+self.maquina_estado:Update(dt)
 
 end
 
