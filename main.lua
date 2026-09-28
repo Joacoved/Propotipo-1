@@ -5,20 +5,31 @@ require("enemigo")
 require("sonido")
 require("particulas")
 
+local MaquinaEstado =
+    require("estados.maquina_estado")
+
+
+local EstadoInicio =
+    require("estados.juego.estado_inicio")
+
+local EstadoJugando =
+    require("estados.juego.estado_jugando")
+
+local EstadoGameOver =
+    require("estados.juego.estado_game_over")
 
 local Orc1 = require("enemigos.orc1")
 local Orc2 = require("enemigos.orc2")
 local Orc3 = require("enemigos.orc3")
 
+local Juego = {}
+
+local maquina_estado_juego
 
 local enemigos = {}
 
 local oleada_actual = 0
 local oleadas_totales = 3
-
-local estado_juego =
-    "jugando"
-
 
 local debug_activo =
     false
@@ -268,10 +279,6 @@ end
 
 local function ReiniciarJuego()
 
-    estado_juego =
-        "jugando"
-
-
     Jugador.Load()
 
 
@@ -326,25 +333,70 @@ function love.load()
 
     ReiniciarJuego()
 
+    maquina_estado_juego =
+    MaquinaEstado:Load({
+
+        inicio =
+            function()
+
+                return EstadoInicio:Load(
+                    Juego
+                )
+
+            end,
+
+        jugando =
+            function()
+
+                return EstadoJugando:Load(
+                    Juego
+                )
+
+            end,
+
+        game_over =
+            function()
+
+                return EstadoGameOver:Load(
+                    Juego
+                )
+
+            end
+
+    })
+
+    maquina_estado_juego:Cambiar(
+    "inicio"
+)
+
+end
+
+function Juego.CambiarEstado(
+    nombre,
+    parametros
+)
+
+    maquina_estado_juego:Cambiar(
+        nombre,
+        parametros
+    )
+
+end
+
+function Juego.Reiniciar()
+
+    ReiniciarJuego()
+
 end
 
 
 -- UPDATE
 
-function love.update(dt)
+function Juego.UpdateJugando(dt)
 
     UpdateParticulas(
         dt
     )
-
-
-    if estado_juego ~=
-       "jugando" then
-
-        return
-
-    end
-
 
     Jugador.UpdateInvulnerabilidad(
         dt
@@ -568,8 +620,11 @@ end
        and Jugador.indice_death >=
        Jugador.cantidad_death then
 
-        estado_juego =
+
+        Juego.CambiarEstado(
+            "game_over",
             "derrota"
+        )
 
 
 -- VICTORIA
@@ -606,8 +661,10 @@ if todos_derrotados then
 
     else
 
-        estado_juego =
+        Juego.CambiarEstado(
+            "game_over",
             "victoria"
+        )
 
     end
 
@@ -616,11 +673,32 @@ end
 end
 
 end
+
+function love.update(dt)
+
+    maquina_estado_juego:Update(
+        dt
+    )
+
+end
+
 -- TECLADO
 
 function love.keypressed(
     key
 )
+
+    local estado_actual =
+        maquina_estado_juego.actual
+
+
+    if estado_actual.KeyPressed then
+
+        estado_actual:KeyPressed(
+            key
+        )
+
+    end
 
     if key == "f1" then
 
@@ -629,14 +707,6 @@ function love.keypressed(
 
     end
 
-
-    if key == "r"
-       and estado_juego ~=
-       "jugando" then
-
-        ReiniciarJuego()
-
-    end
 
 end
 
@@ -790,108 +860,9 @@ local function DibujarInterfaz()
 
 end
 
-
--- PANTALLA FINAL
-
-local function DibujarPantallaFinal()
-
-    if estado_juego ==
-       "jugando" then
-
-        return
-
-    end
-
-
-    love.graphics.setColor(
-        0,
-        0,
-        0,
-        0.7
-    )
-
-
-    love.graphics.rectangle(
-        "fill",
-        0,
-        0,
-        800,
-        600
-    )
-
-
-    love.graphics.setColor(
-        1,
-        1,
-        1
-    )
-
-
-    if estado_juego ==
-       "victoria" then
-
-        love.graphics.printf(
-            "VICTORIA",
-            0,
-            240,
-            800,
-            "center"
-        )
-
-
-        love.graphics.printf(
-            "Has derrotado a todos los enemigos",
-            0,
-            280,
-            800,
-            "center"
-        )
-
-
-    elseif estado_juego ==
-           "derrota" then
-
-        love.graphics.printf(
-            "DERROTA",
-            0,
-            240,
-            800,
-            "center"
-        )
-
-
-        love.graphics.printf(
-            "Has sido derrotado",
-            0,
-            280,
-            800,
-            "center"
-        )
-
-    end
-
-
-    love.graphics.printf(
-        "Presiona R para reiniciar",
-        0,
-        330,
-        800,
-        "center"
-    )
-
-
-    love.graphics.setColor(
-        1,
-        1,
-        1
-    )
-
-end
-
-
 -- DRAW
 
-function love.draw()
+function Juego.DrawJugando()
 
     Arena.Draw()
 
@@ -950,6 +921,10 @@ end
     DibujarInterfaz()
 
 
-    DibujarPantallaFinal()
+end
+
+function love.draw()
+
+    maquina_estado_juego:Draw()
 
 end
