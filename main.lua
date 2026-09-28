@@ -11,10 +11,10 @@ local Orc2 = require("enemigos.orc2")
 local Orc3 = require("enemigos.orc3")
 
 
-local enemigo1
-local enemigo2
-local enemigo3
+local enemigos = {}
 
+local oleada_actual = 0
+local oleadas_totales = 3
 
 local estado_juego =
     "jugando"
@@ -28,62 +28,27 @@ local debug_activo =
 
 local function JugadorColisiona()
 
-    if enemigo1.activo
-       and not enemigo1.muerto
-       and Colisiones.AABB(
-            Jugador.hitbox_x,
-            Jugador.hitbox_y,
-            Jugador.hitbox_ancho,
-            Jugador.hitbox_alto,
+    for _, enemigo in ipairs(enemigos) do
 
-            enemigo1.hitbox_x,
-            enemigo1.hitbox_y,
-            enemigo1.hitbox_ancho,
-            enemigo1.hitbox_alto
-       ) then
+        if enemigo.activo
+           and not enemigo.muerto
+           and Colisiones.AABB(
+                Jugador.hitbox_x,
+                Jugador.hitbox_y,
+                Jugador.hitbox_ancho,
+                Jugador.hitbox_alto,
 
-        return true
+                enemigo.hitbox_x,
+                enemigo.hitbox_y,
+                enemigo.hitbox_ancho,
+                enemigo.hitbox_alto
+           ) then
 
-    end
+            return true
 
-
-    if enemigo2.activo
-       and not enemigo2.muerto
-       and Colisiones.AABB(
-            Jugador.hitbox_x,
-            Jugador.hitbox_y,
-            Jugador.hitbox_ancho,
-            Jugador.hitbox_alto,
-
-            enemigo2.hitbox_x,
-            enemigo2.hitbox_y,
-            enemigo2.hitbox_ancho,
-            enemigo2.hitbox_alto
-       ) then
-
-        return true
+        end
 
     end
-
-
-    if enemigo3.activo
-       and not enemigo3.muerto
-       and Colisiones.AABB(
-            Jugador.hitbox_x,
-            Jugador.hitbox_y,
-            Jugador.hitbox_ancho,
-            Jugador.hitbox_alto,
-
-            enemigo3.hitbox_x,
-            enemigo3.hitbox_y,
-            enemigo3.hitbox_ancho,
-            enemigo3.hitbox_alto
-       ) then
-
-        return true
-
-    end
-
 
     return false
 
@@ -92,37 +57,209 @@ end
 
 -- CONTAR ENEMIGOS
 
+
 local function ContarEnemigosRestantes()
 
-    local cantidad =
-        0
+    local cantidad = 0
 
+    for _, enemigo in ipairs(enemigos) do
 
-    if enemigo1.activo then
+        if enemigo.activo then
 
-        cantidad =
-            cantidad + 1
+            cantidad =
+                cantidad + 1
 
-    end
-
-
-    if enemigo2.activo then
-
-        cantidad =
-            cantidad + 1
+        end
 
     end
-
-
-    if enemigo3.activo then
-
-        cantidad =
-            cantidad + 1
-
-    end
-
 
     return cantidad
+
+end
+
+-- CREAR ENEMIGO ALEATORIO
+
+local function CrearEnemigoAleatorio(
+    x,
+    y
+)
+
+    local tipo =
+        math.random(
+            1,
+            3
+        )
+
+
+    if tipo == 1 then
+
+        return Orc1:Load(
+            x,
+            y
+        )
+
+    elseif tipo == 2 then
+
+        return Orc2:Load(
+            x,
+            y
+        )
+
+    else
+
+        return Orc3:Load(
+            x,
+            y
+        )
+
+    end
+
+end
+
+-- GENERAR OLEADA
+
+local function GenerarOleada(nivel)
+
+    local cantidad =
+        2 + nivel
+
+    local patron =
+        nivel % 3
+
+
+    -- PATRON 1
+
+
+    if patron == 1 then
+
+        local centro_x = 400
+        local centro_y = 300
+
+        local radio =
+            220
+
+
+        for i = 1, cantidad do
+
+            local angulo =
+                (i / cantidad) *
+                (math.pi * 2)
+
+
+            local x =
+                centro_x +
+                math.cos(angulo) *
+                radio
+
+
+            local y =
+                centro_y +
+                math.sin(angulo) *
+                radio
+
+
+local enemigo =
+    CrearEnemigoAleatorio(
+        x,
+        y
+    )
+
+
+            table.insert(
+                enemigos,
+                enemigo
+            )
+
+        end
+
+
+    -- PATRON 2
+
+
+    elseif patron == 2 then
+
+        for i = 1, cantidad do
+
+            local x =
+                (800 / (cantidad + 1)) *
+                i
+
+
+            local y
+
+            if i % 2 == 0 then
+
+                y = 100
+
+            else
+
+                y = 500
+
+            end
+
+
+            local enemigo =
+    CrearEnemigoAleatorio(
+        x,
+        y
+    )
+
+
+            table.insert(
+                enemigos,
+                enemigo
+            )
+
+        end
+
+
+    -- PATRON 3
+
+
+    else
+
+        for i = 1, cantidad do
+
+            local progreso =
+                i /
+                (cantidad + 1)
+
+
+            local x =
+                progreso * 800
+
+
+            local y
+
+            if i % 2 == 0 then
+
+                y =
+                    progreso * 600
+
+            else
+
+                y =
+                    600 -
+                    (progreso * 600)
+
+            end
+
+
+            local enemigo =
+    CrearEnemigoAleatorio(
+        x,
+        y
+    )
+
+
+            table.insert(
+                enemigos,
+                enemigo
+            )
+
+        end
+
+    end
 
 end
 
@@ -138,27 +275,12 @@ local function ReiniciarJuego()
     Jugador.Load()
 
 
-    -- ENEMIGO 1
+enemigos = {}
 
-enemigo1 = Orc1:Load(
-    100,
-    100
-)
+oleada_actual = 1
 
-
-    -- ENEMIGO 2
-
-enemigo2 = Orc2:Load(
-    700,
-    100
-)
-
-
-    -- ENEMIGO 3
-
-enemigo3 = Orc3:Load(
-    400,
-    480
+GenerarOleada(
+    oleada_actual
 )
 
 
@@ -198,6 +320,9 @@ function love.load()
 
     CargarParticulas()
 
+    math.randomseed(
+    os.time()
+)
 
     ReiniciarJuego()
 
@@ -266,28 +391,28 @@ function love.update(dt)
     )
 
 
-    if Jugador.nuevo_ataque then
+if Jugador.nuevo_ataque then
 
-        enemigo1.golpeado_ataque =
+    for _, enemigo in ipairs(enemigos) do
+
+        enemigo.golpeado_ataque =
             false
-
-        enemigo2.golpeado_ataque =
-            false
-
-        enemigo3.golpeado_ataque =
-            false
-
-
-        ReproducirSonido(
-            sonidos.ataque
-        )
 
     end
+
+
+    ReproducirSonido(
+        sonidos.ataque
+    )
+
+end
 
 
     -- UPDATE ENEMIGOS
 
-    enemigo1:Update(
+    for _, enemigo in ipairs(enemigos) do
+
+    enemigo:Update(
         Jugador.x,
         Jugador.y,
 
@@ -299,93 +424,54 @@ function love.update(dt)
         dt
     )
 
-
-    enemigo2:Update(
-        Jugador.x,
-        Jugador.y,
-
-        Jugador.hitbox_x,
-        Jugador.hitbox_y,
-        Jugador.hitbox_ancho,
-        Jugador.hitbox_alto,
-
-        dt
-    )
+end
 
 
-    enemigo3:Update(
-        Jugador.x,
-        Jugador.y,
+   -- COLISION ENTRE ENEMIGOS
 
-        Jugador.hitbox_x,
-        Jugador.hitbox_y,
-        Jugador.hitbox_ancho,
-        Jugador.hitbox_alto,
+for i = 1, #enemigos - 1 do
 
-        dt
-    )
+    for j = i + 1, #enemigos do
 
+        enemigos[i]:ResolverColision(
+            enemigos[j],
 
-    -- COLISION ENEMIGO 1 Y 2
+            Jugador.hitbox_x,
+            Jugador.hitbox_y,
+            Jugador.hitbox_ancho,
+            Jugador.hitbox_alto
+        )
 
-    enemigo1:ResolverColision(
-        enemigo2,
+    end
 
-        Jugador.hitbox_x,
-        Jugador.hitbox_y,
-        Jugador.hitbox_ancho,
-        Jugador.hitbox_alto
-    )
+end
 
+   -- GOLPE A ENEMIGOS
 
-    -- COLISION ENEMIGO 1 Y 3
-
-    enemigo1:ResolverColision(
-        enemigo3,
-
-        Jugador.hitbox_x,
-        Jugador.hitbox_y,
-        Jugador.hitbox_ancho,
-        Jugador.hitbox_alto
-    )
-
-
-    -- COLISION ENEMIGO 2 Y 3
-
-    enemigo2:ResolverColision(
-        enemigo3,
-
-        Jugador.hitbox_x,
-        Jugador.hitbox_y,
-        Jugador.hitbox_ancho,
-        Jugador.hitbox_alto
-    )
-
-
-    -- GOLPE ENEMIGO 1
+for _, enemigo in ipairs(enemigos) do
 
     if Jugador.atacando
-       and enemigo1.activo
-       and not enemigo1.muerto
-       and not enemigo1.golpeado_ataque
+       and enemigo.activo
+       and not enemigo.muerto
+       and not enemigo.golpeado_ataque
        and Colisiones.AABB(
             Jugador.ataque_x,
             Jugador.ataque_y,
             Jugador.ataque_ancho,
             Jugador.ataque_alto,
 
-            enemigo1.hitbox_x,
-            enemigo1.hitbox_y,
-            enemigo1.hitbox_ancho,
-            enemigo1.hitbox_alto
+            enemigo.hitbox_x,
+            enemigo.hitbox_y,
+            enemigo.hitbox_ancho,
+            enemigo.hitbox_alto
        ) then
 
-        enemigo1:RecibirGolpe(
+        enemigo:RecibirGolpe(
             1
         )
 
 
-        enemigo1.golpeado_ataque =
+        enemigo.golpeado_ataque =
             true
 
 
@@ -394,209 +480,86 @@ function love.update(dt)
         )
 
 
-        if enemigo1.muerto then
+        if enemigo.muerto then
 
             ParticulasDerrota(
-                enemigo1
+                enemigo
             )
 
         else
 
             ParticulasGolpe(
-                enemigo1
+                enemigo
             )
 
         end
 
     end
 
+end
 
-    -- GOLPE ENEMIGO 2
 
-    if Jugador.atacando
-       and enemigo2.activo
-       and not enemigo2.muerto
-       and not enemigo2.golpeado_ataque
-       and Colisiones.AABB(
-            Jugador.ataque_x,
-            Jugador.ataque_y,
-            Jugador.ataque_ancho,
-            Jugador.ataque_alto,
+ -- GOLPE AL JUGADOR
 
-            enemigo2.hitbox_x,
-            enemigo2.hitbox_y,
-            enemigo2.hitbox_ancho,
-            enemigo2.hitbox_alto
-       ) then
+local enemigos_que_golpean = {}
 
-        enemigo2:RecibirGolpe(
-            1
+
+for _, enemigo in ipairs(enemigos) do
+
+    local puede_golpear =
+        enemigo.activo
+        and enemigo.tocando_jugador
+        and not enemigo.golpe_jugador_registrado
+        and not enemigo.muerto
+
+
+    if puede_golpear then
+
+        table.insert(
+            enemigos_que_golpean,
+            enemigo
         )
 
+    end
 
-        enemigo2.golpeado_ataque =
-            true
-
-
-        ReproducirSonido(
-            sonidos.golpe_enemigo
-        )
+end
 
 
-        if enemigo2.muerto then
+if #enemigos_que_golpean > 0
+   and not Jugador.invulnerable
+   and not Jugador.muerto then
 
-            ParticulasDerrota(
-                enemigo2
-            )
+    Jugador.RecibirGolpe(
+        1
+    )
 
-        else
 
-            ParticulasGolpe(
-                enemigo2
-            )
+    ReproducirSonido(
+        sonidos.golpe_jugador
+    )
 
-        end
+
+    for _, enemigo in ipairs(
+        enemigos_que_golpean
+    ) do
+
+        enemigo:IniciarAtaque()
 
     end
 
 
-    -- GOLPE ENEMIGO 3
+    for _, enemigo in ipairs(enemigos) do
 
-    if Jugador.atacando
-       and enemigo3.activo
-       and not enemigo3.muerto
-       and not enemigo3.golpeado_ataque
-       and Colisiones.AABB(
-            Jugador.ataque_x,
-            Jugador.ataque_y,
-            Jugador.ataque_ancho,
-            Jugador.ataque_alto,
+        if enemigo.tocando_jugador then
 
-            enemigo3.hitbox_x,
-            enemigo3.hitbox_y,
-            enemigo3.hitbox_ancho,
-            enemigo3.hitbox_alto
-       ) then
-
-        enemigo3:RecibirGolpe(
-            1
-        )
-
-
-        enemigo3.golpeado_ataque =
-            true
-
-
-        ReproducirSonido(
-            sonidos.golpe_enemigo
-        )
-
-
-        if enemigo3.muerto then
-
-            ParticulasDerrota(
-                enemigo3
-            )
-
-        else
-
-            ParticulasGolpe(
-                enemigo3
-            )
-
-        end
-
-    end
-
-
-    -- GOLPE AL JUGADOR
-
-    local golpe_enemigo1 =
-        enemigo1.activo
-        and enemigo1.tocando_jugador
-        and not enemigo1.golpe_jugador_registrado
-        and not enemigo1.muerto
-
-
-    local golpe_enemigo2 =
-        enemigo2.activo
-        and enemigo2.tocando_jugador
-        and not enemigo2.golpe_jugador_registrado
-        and not enemigo2.muerto
-
-
-    local golpe_enemigo3 =
-        enemigo3.activo
-        and enemigo3.tocando_jugador
-        and not enemigo3.golpe_jugador_registrado
-        and not enemigo3.muerto
-
-
-    local enemigo_puede_golpear =
-        golpe_enemigo1
-        or golpe_enemigo2
-        or golpe_enemigo3
-
-
-    if enemigo_puede_golpear
-       and not Jugador.invulnerable
-       and not Jugador.muerto then
-
-        Jugador.RecibirGolpe(
-            1
-        )
-
-
-        ReproducirSonido(
-            sonidos.golpe_jugador
-        )
-
-
-        if golpe_enemigo1 then
-
-            enemigo1:IniciarAtaque()
-
-        end
-
-
-        if golpe_enemigo2 then
-
-            enemigo2:IniciarAtaque()
-
-        end
-
-
-        if golpe_enemigo3 then
-
-            enemigo3:IniciarAtaque()
-
-        end
-
-
-        if enemigo1.tocando_jugador then
-
-            enemigo1.golpe_jugador_registrado =
-                true
-
-        end
-
-
-        if enemigo2.tocando_jugador then
-
-            enemigo2.golpe_jugador_registrado =
-                true
-
-        end
-
-
-        if enemigo3.tocando_jugador then
-
-            enemigo3.golpe_jugador_registrado =
+            enemigo.golpe_jugador_registrado =
                 true
 
         end
 
     end
+
+end
 
 
     -- DERROTA
@@ -609,11 +572,39 @@ function love.update(dt)
             "derrota"
 
 
-    -- VICTORIA
+-- VICTORIA
 
-    elseif not enemigo1.activo
-       and not enemigo2.activo
-       and not enemigo3.activo then
+else
+
+    local todos_derrotados = true
+
+    for _, enemigo in ipairs(enemigos) do
+
+        if enemigo.activo then
+
+            todos_derrotados = false
+            break
+
+        end
+
+    end
+
+
+if todos_derrotados then
+
+    if oleada_actual <
+       oleadas_totales then
+
+        oleada_actual =
+            oleada_actual + 1
+
+        enemigos = {}
+
+        GenerarOleada(
+            oleada_actual
+        )
+
+    else
 
         estado_juego =
             "victoria"
@@ -622,7 +613,9 @@ function love.update(dt)
 
 end
 
+end
 
+end
 -- TECLADO
 
 function love.keypressed(
@@ -757,6 +750,15 @@ local function DibujarInterfaz()
         610,
         20
     )
+
+    love.graphics.print(
+    "Oleada: " ..
+    oleada_actual ..
+    " / " ..
+    oleadas_totales,
+    610,
+    40
+)
 
 
     love.graphics.print(
@@ -897,17 +899,21 @@ function love.draw()
     Jugador.Draw()
 
 
-    enemigo1:Draw()
-    enemigo2:Draw()
-    enemigo3:Draw()
+for _, enemigo in ipairs(enemigos) do
+
+    enemigo:Draw()
+
+end
 
 
     DrawParticulas()
 
 
-    enemigo1:DibujarBarraVida()
-    enemigo2:DibujarBarraVida()
-    enemigo3:DibujarBarraVida()
+for _, enemigo in ipairs(enemigos) do
+
+    enemigo:DibujarBarraVida()
+
+end
 
 
     -- DEBUG APAGADO POR DEFECTO
@@ -923,9 +929,11 @@ function love.draw()
 
         Jugador.Debug()
 
-        enemigo1:Debug()
-        enemigo2:Debug()
-        enemigo3:Debug()
+ for _, enemigo in ipairs(enemigos) do
+
+    enemigo:Debug()
+
+end
 
         Arena.Debug()
 
