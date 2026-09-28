@@ -6,6 +6,11 @@ require("sonido")
 require("particulas")
 
 
+local Orc1 = require("enemigos.orc1")
+local Orc2 = require("enemigos.orc2")
+local Orc3 = require("enemigos.orc3")
+
+
 local enemigo1
 local enemigo2
 local enemigo3
@@ -135,86 +140,26 @@ local function ReiniciarJuego()
 
     -- ENEMIGO 1
 
-    enemigo1 =
-        Enemigo:Load(
-            100,
-            180,
-
-            "assets/enemigos/orc1_walk_without_shadow.png",
-            "assets/enemigos/orc1_attack_without_shadow.png",
-            "assets/enemigos/orc1_hurt_without_shadow.png",
-            "assets/enemigos/orc1_death_without_shadow.png",
-
-            80,
-            1.85,
-            42,
-            52,
-            0,
-            -6
-        )
-
-
-    enemigo1.vida =
-        2
-
-    enemigo1.vida_maxima =
-        2
+enemigo1 = Orc1:Load(
+    100,
+    100
+)
 
 
     -- ENEMIGO 2
 
-    enemigo2 =
-        Enemigo:Load(
-            700,
-            180,
-
-            "assets/enemigos/orc2_walk_without_shadow.png",
-            "assets/enemigos/orc2_attack_without_shadow.png",
-            "assets/enemigos/orc2_hurt_without_shadow.png",
-            "assets/enemigos/orc2_death_without_shadow.png",
-
-            100,
-            2.0,
-            50,
-            60,
-            0,
-            -9
-        )
-
-
-    enemigo2.vida =
-        3
-
-    enemigo2.vida_maxima =
-        3
+enemigo2 = Orc2:Load(
+    700,
+    100
+)
 
 
     -- ENEMIGO 3
 
-    enemigo3 =
-        Enemigo:Load(
-            400,
-            480,
-
-            "assets/enemigos/orc3_walk_without_shadow.png",
-            "assets/enemigos/orc3_attack_without_shadow.png",
-            "assets/enemigos/orc3_hurt_without_shadow.png",
-            "assets/enemigos/orc3_death_without_shadow.png",
-
-            120,
-            2.15,
-            58,
-            68,
-            0,
-            -12
-        )
-
-
-    enemigo3.vida =
-        5
-
-    enemigo3.vida_maxima =
-        5
+enemigo3 = Orc3:Load(
+    400,
+    480
+)
 
 
     if particulas ~= nil then
