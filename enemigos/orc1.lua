@@ -19,7 +19,7 @@ function Orc1:Load(x, y)
         "assets/enemigos/orc1_hurt_without_shadow.png",
         "assets/enemigos/orc1_death_without_shadow.png",
 
-        80,
+        120,
         1.85,
 
         42,

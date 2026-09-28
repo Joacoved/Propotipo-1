@@ -19,7 +19,7 @@ function Orc3:Load(x, y)
         "assets/enemigos/orc3_hurt_without_shadow.png",
         "assets/enemigos/orc3_death_without_shadow.png",
 
-        120,
+        80,
         2.15,
 
         58,
