@@ -8,11 +8,11 @@ function MaquinaEstado:Load(estados)
         estados or {}
 
     maquina.actual = {
-        Ingresar = function() end,
-        Salir = function() end,
-        Update = function(dt) end,
-        Draw = function() end
-    }
+    Ingresar = function(self, parametros) end,
+    Salir = function(self) end,
+    Update = function(self, dt) end,
+    Draw = function(self) end
+}
 
     function maquina:Cambiar(
         nombre_estado,

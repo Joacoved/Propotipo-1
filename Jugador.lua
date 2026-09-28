@@ -1,3 +1,22 @@
+local MaquinaEstado =
+    require("estados.maquina_estado")
+
+local EstadoIdle =
+    require("estados.jugador.estado_idle")
+
+local EstadoWalk =
+    require("estados.jugador.estado_walk")
+
+local EstadoAttack =
+    require("estados.jugador.estado_attack")
+
+local EstadoHurt =
+    require("estados.jugador.estado_hurt")
+
+local EstadoDeath =
+    require("estados.jugador.estado_death")
+
+
 Jugador = {}
 
 
@@ -36,6 +55,9 @@ Jugador.ataque_en_movimiento = false
 
 Jugador.hurt = false
 Jugador.muerto = false
+
+Jugador.maquina_estado = nil
+Jugador.estado_actual = "idle"
 
 
 -- SPRITES
@@ -225,10 +247,118 @@ function Jugador.Load()
 
     Jugador.CrearAnimaciones()
 
-    Jugador.UpdateHitbox()
+    Jugador.maquina_estado =
+    MaquinaEstado:Load({
+
+        idle = function()
+            return EstadoIdle:Load(
+                Jugador
+            )
+        end,
+
+        walk = function()
+            return EstadoWalk:Load(
+                Jugador
+            )
+        end,
+
+        attack = function()
+            return EstadoAttack:Load(
+                Jugador
+            )
+        end,
+
+        hurt = function()
+            return EstadoHurt:Load(
+                Jugador
+            )
+        end,
+
+        death = function()
+            return EstadoDeath:Load(
+                Jugador
+            )
+        end
+
+    })
+
+
+Jugador.estado_actual =
+    "idle"
+
+
+Jugador.maquina_estado:Cambiar(
+    "idle"
+)
+
+
+Jugador.UpdateHitbox()
+
+   
 
 end
 
+-- CAMBIAR ESTADO
+
+function Jugador.CambiarEstado(
+    nuevo_estado
+)
+
+    if Jugador.estado_actual ==
+       nuevo_estado then
+
+        return
+
+    end
+
+
+    Jugador.estado_actual =
+        nuevo_estado
+
+
+    Jugador.maquina_estado:Cambiar(
+        nuevo_estado
+    )
+
+end
+
+-- ACTUALIZAR ESTADO
+
+function Jugador.ActualizarEstado()
+
+    if Jugador.muerto then
+
+        Jugador.CambiarEstado(
+            "death"
+        )
+
+    elseif Jugador.hurt then
+
+        Jugador.CambiarEstado(
+            "hurt"
+        )
+
+    elseif Jugador.atacando then
+
+        Jugador.CambiarEstado(
+            "attack"
+        )
+
+    elseif Jugador.moviendose then
+
+        Jugador.CambiarEstado(
+            "walk"
+        )
+
+    else
+
+        Jugador.CambiarEstado(
+            "idle"
+        )
+
+    end
+
+end
 
 -- CREAR ANIMACIONES
 
@@ -854,159 +984,17 @@ function Jugador.Atacar(dt)
 
 end
 
-
 -- UPDATE ANIMACION
 
 function Jugador.UpdateAnimacion(dt)
 
-    -- DEATH
+    Jugador.ActualizarEstado()
 
-    if Jugador.muerto then
-
-        Jugador.indice_death =
-            Jugador.indice_death +
-            Jugador.velocidad_death *
-            dt
-
-
-        if Jugador.indice_death >
-           Jugador.cantidad_death then
-
-            Jugador.indice_death =
-                Jugador.cantidad_death
-
-        end
-
-
-        return
-
-    end
-
-
-    -- HURT
-
-    if Jugador.hurt then
-
-        Jugador.indice_hurt =
-            Jugador.indice_hurt +
-            Jugador.velocidad_hurt *
-            dt
-
-
-        if Jugador.indice_hurt >
-           Jugador.cantidad_hurt then
-
-            Jugador.indice_hurt =
-                1
-
-            Jugador.hurt =
-                false
-
-        end
-
-
-        return
-
-    end
-
-
-    -- WALK ATTACK
-
-    if Jugador.atacando
-       and Jugador.ataque_en_movimiento then
-
-        Jugador.indice_walk_ataque =
-            Jugador.indice_walk_ataque +
-            Jugador.velocidad_walk_ataque *
-            dt
-
-
-        if Jugador.indice_walk_ataque >
-           Jugador.cantidad_walk_ataque then
-
-            Jugador.indice_walk_ataque =
-                Jugador.cantidad_walk_ataque
-
-        end
-
-
-        return
-
-    end
-
-
-    -- ATTACK
-
-    if Jugador.atacando then
-
-        Jugador.indice_ataque =
-            Jugador.indice_ataque +
-            Jugador.velocidad_ataque *
-            dt
-
-
-        if Jugador.indice_ataque >
-           Jugador.cantidad_ataque then
-
-            Jugador.indice_ataque =
-                Jugador.cantidad_ataque
-
-        end
-
-
-        return
-
-    end
-
-
-    -- WALK
-
-    if Jugador.moviendose then
-
-        Jugador.indice_walk =
-            Jugador.indice_walk +
-            Jugador.velocidad_walk *
-            dt
-
-
-        if Jugador.indice_walk >=
-           Jugador.cantidad_walk + 1 then
-
-            Jugador.indice_walk =
-                1
-
-        end
-
-
-        return
-
-    end
-
-
-    -- IDLE
-
-    local cantidad =
-        Jugador.cantidad_idle[
-            Jugador.direccion
-        ]
-
-
-    Jugador.indice_idle =
-        Jugador.indice_idle +
-        Jugador.velocidad_idle *
+    Jugador.maquina_estado:Update(
         dt
-
-
-    if Jugador.indice_idle >=
-       cantidad + 1 then
-
-        Jugador.indice_idle =
-            1
-
-    end
+    )
 
 end
-
 
 -- RECIBIR GOLPE
 
