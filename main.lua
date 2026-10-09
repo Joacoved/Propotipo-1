@@ -4,6 +4,9 @@ require("jugador")
 require("enemigo")
 require("sonido")
 require("particulas")
+require("evento")
+
+local Eventos = require("evento")
 
 local MaquinaEstado =
     require("estados.maquina_estado")
@@ -388,7 +391,6 @@ function Juego.Reiniciar()
     ReiniciarJuego()
 
 end
-
 
 -- UPDATE
 
