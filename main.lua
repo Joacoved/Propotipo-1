@@ -286,6 +286,11 @@ local function ReiniciarJuego()
 
     Jugador.Load()
 
+    Eventos.emitir(
+    "vida_actualizada",
+    Jugador.vida
+)
+
 
 enemigos = {}
 
@@ -773,7 +778,6 @@ end
 
 
 HUD.Draw(
-    Jugador.vida,
     ContarEnemigosRestantes(),
     oleada_actual,
     oleadas_totales

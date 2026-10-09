@@ -1,9 +1,20 @@
+local Eventos = require("evento")
 
-local HUD = {}
+local HUD = {
+    vida = 10
+}
+
+
+-- REGISTRAR OYENTE
+
+Eventos.on("vida_actualizada", function(nueva_vida)
+
+    HUD.vida = nueva_vida
+
+end)
 
 
 function HUD.Draw(
-    vida,
     enemigos_restantes,
     oleada_actual,
     oleadas_totales
@@ -37,7 +48,7 @@ function HUD.Draw(
     -- VIDA
 
     local porcentaje =
-        vida / vida_maxima
+        HUD.vida / vida_maxima
 
     love.graphics.setColor(
         0.8,
@@ -80,7 +91,7 @@ function HUD.Draw(
     )
 
     love.graphics.print(
-        "Vida: " .. vida .. " / " .. vida_maxima,
+        "Vida: " .. HUD.vida .. " / " .. vida_maxima,
         85,
         22
     )
