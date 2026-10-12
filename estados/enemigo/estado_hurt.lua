@@ -37,9 +37,6 @@ function EstadoHurt:Load(enemigo)
 
     end
 
-    function estado:Draw()
-    end
-
     return estado
 
 end

@@ -4,7 +4,6 @@ require("jugador")
 require("enemigo")
 require("sonido")
 require("particulas")
-require("evento")
 
 local HUD = require("hud")
 

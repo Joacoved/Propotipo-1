@@ -131,11 +131,6 @@ function Enemigo:Load(
 
     -- ANIMACIONES
 
-    enemigo.anim_walk = {}
-    enemigo.anim_attack = {}
-    enemigo.anim_hurt = {}
-    enemigo.anim_death = {}
-
 
     enemigo.indice_walk = 1
     enemigo.indice_attack = 1

@@ -24,12 +24,6 @@ function EstadoGameOver:Load(juego)
 
     end
 
-
-    function estado:Update(dt)
-
-    end
-
-
 function estado:KeyPressed(
     key
 )
