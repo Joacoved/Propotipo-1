@@ -572,19 +572,23 @@ for _, enemigo in ipairs(enemigos) do
         )
 
 
-        if enemigo.muerto then
+if enemigo.muerto then
 
-            ParticulasDerrota(
-                enemigo
-            )
+   Eventos.emitir(
+        "enemigo_derrotado",
+        enemigo
+    )
 
-        else
+else
 
-            ParticulasGolpe(
-                enemigo
-            )
+    Eventos.emitir(
+        "enemigo_herido",
+        enemigo
+    )
 
-        end
+end
+
+    
 
     end
 

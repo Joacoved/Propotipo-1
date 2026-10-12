@@ -1,3 +1,5 @@
+local Eventos = require("evento")
+
 img_particula = nil
 
 particulas = nil
@@ -88,6 +90,16 @@ function ParticulasGolpe(enemigo)
 
 end
 
+-- EVENTO DE ENEMIGO HERIDO
+
+Eventos.on("enemigo_herido", function(enemigo)
+
+    ParticulasGolpe(
+        enemigo
+    )
+
+end)
+
 
 -- DERROTA ENEMIGO
 
@@ -107,6 +119,16 @@ function ParticulasDerrota(enemigo)
     )
 
 end
+
+-- EVENTO DE ENEMIGO DERROTADO
+
+Eventos.on("enemigo_derrotado", function(enemigo)
+
+    ParticulasDerrota(
+        enemigo
+    )
+
+end)
 
 
 -- DRAW
