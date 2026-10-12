@@ -318,6 +318,12 @@ enemigos = {}
 
 oleada_actual = 1
 
+Eventos.emitir(
+    "oleada_actualizada",
+    oleada_actual,
+    oleadas_totales
+)
+
 GenerarOleada(
     oleada_actual
 )
@@ -688,6 +694,12 @@ if todos_derrotados then
         oleada_actual =
             oleada_actual + 1
 
+            Eventos.emitir(
+            "oleada_actualizada",
+            oleada_actual,
+            oleadas_totales
+)
+
         enemigos = {}
 
         GenerarOleada(
@@ -805,10 +817,7 @@ end
     end
 
 
-HUD.Draw(
-    oleada_actual,
-    oleadas_totales
-)
+HUD.Draw()
 
 
 end
