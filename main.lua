@@ -493,8 +493,8 @@ if Jugador.nuevo_ataque then
     end
 
 
-    ReproducirSonido(
-        sonidos.ataque
+    Eventos.emitir(
+       "jugador_ataca"
     )
 
 end
@@ -567,8 +567,8 @@ for _, enemigo in ipairs(enemigos) do
             true
 
 
-        ReproducirSonido(
-            sonidos.golpe_enemigo
+        Eventos.emitir(
+        "enemigo_golpeado"
         )
 
 
@@ -627,8 +627,8 @@ if #enemigos_que_golpean > 0
     )
 
 
-    ReproducirSonido(
-        sonidos.golpe_jugador
+    Eventos.emitir(
+    "jugador_golpeado"
     )
 
 

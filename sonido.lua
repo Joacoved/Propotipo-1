@@ -1,3 +1,5 @@
+local Eventos = require("evento")
+
 sonidos = {}
 
 
@@ -39,3 +41,33 @@ function ReproducirSonido(sonido)
     sonido:play()
 
 end
+
+-- EVENTO DE ATAQUE DEL JUGADOR
+
+Eventos.on("jugador_ataca", function()
+
+    ReproducirSonido(
+        sonidos.ataque
+    )
+
+end)
+
+-- EVENTO DE GOLPE AL ENEMIGO
+
+Eventos.on("enemigo_golpeado", function()
+
+    ReproducirSonido(
+        sonidos.golpe_enemigo
+    )
+
+end)
+
+-- EVENTO DE GOLPE AL JUGADOR
+
+Eventos.on("jugador_golpeado", function()
+
+    ReproducirSonido(
+        sonidos.golpe_jugador
+    )
+
+end)
