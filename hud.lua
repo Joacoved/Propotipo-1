@@ -1,7 +1,8 @@
 local Eventos = require("evento")
 
 local HUD = {
-    vida = 10
+    vida = 10,
+    enemigos_restantes = 0
 }
 
 
@@ -13,9 +14,16 @@ Eventos.on("vida_actualizada", function(nueva_vida)
 
 end)
 
+-- ACTUALIZAR ENEMIGOS
+
+Eventos.on("enemigos_actualizados", function(cantidad)
+
+    HUD.enemigos_restantes = cantidad
+
+end)
+
 
 function HUD.Draw(
-    enemigos_restantes,
     oleada_actual,
     oleadas_totales
 )
@@ -97,9 +105,10 @@ function HUD.Draw(
     )
 
     love.graphics.print(
-        "Enemigos restantes: " .. enemigos_restantes,
-        610,
-        20
+    "Enemigos restantes: " ..
+    HUD.enemigos_restantes,
+    610,
+    20
     )
 
     love.graphics.print(

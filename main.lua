@@ -93,6 +93,28 @@ local function ContarEnemigosRestantes()
 
 end
 
+-- NOTIFICAR CAMBIOS DE ENEMIGOS
+
+local ultimo_numero_enemigos = nil
+
+local function ActualizarContadorEnemigos()
+
+    local cantidad =
+        ContarEnemigosRestantes()
+
+    if cantidad ~= ultimo_numero_enemigos then
+
+        ultimo_numero_enemigos = cantidad
+
+        Eventos.emitir(
+           "enemigos_actualizados",
+           cantidad
+        )
+
+    end
+
+end
+
 -- CREAR ENEMIGO ALEATORIO
 
 local function CrearEnemigoAleatorio(
@@ -300,6 +322,7 @@ GenerarOleada(
     oleada_actual
 )
 
+ActualizarContadorEnemigos()
 
     if particulas ~= nil then
 
@@ -308,6 +331,8 @@ GenerarOleada(
     end
 
 end
+
+
 
 
 -- LOAD
@@ -557,6 +582,7 @@ for _, enemigo in ipairs(enemigos) do
 
     end
 
+
 end
 
 
@@ -681,6 +707,8 @@ end
 
 end
 
+ActualizarContadorEnemigos()
+
 end
 
 function love.update(dt)
@@ -778,7 +806,6 @@ end
 
 
 HUD.Draw(
-    ContarEnemigosRestantes(),
     oleada_actual,
     oleadas_totales
 )
