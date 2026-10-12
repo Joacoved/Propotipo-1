@@ -12,14 +12,6 @@ function EstadoInicio:Load(juego)
         juego
 
 
-    function estado:Ingresar()
-
-    end
-
-
-    function estado:Update(dt)
-
-    end
 
     function estado:KeyPressed(
     key

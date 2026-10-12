@@ -12,11 +12,6 @@ function EstadoJugando:Load(juego)
         juego
 
 
-    function estado:Ingresar()
-
-    end
-
-
     function estado:Update(dt)
  self.juego.UpdateJugando(
         dt

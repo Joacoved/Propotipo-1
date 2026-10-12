@@ -1,0 +1,158 @@
+local Eventos = require("evento")
+
+local HUD = {
+    vida = 10,
+    enemigos_restantes = 0,
+    oleada_actual = 1,
+    oleadas_totales = 3
+}
+
+
+-- REGISTRAR OYENTE
+
+Eventos.on("vida_actualizada", function(nueva_vida)
+
+    HUD.vida = nueva_vida
+
+end)
+
+-- ACTUALIZAR ENEMIGOS
+
+Eventos.on("enemigos_actualizados", function(cantidad)
+
+    HUD.enemigos_restantes = cantidad
+
+end)
+
+-- ACTUALIZAR OLEADA
+
+Eventos.on("oleada_actualizada", function(actual, total)
+
+    HUD.oleada_actual = actual
+    HUD.oleadas_totales = total
+
+end)
+
+
+function HUD.Draw()
+
+    local vida_maxima = 10
+
+    local barra_x = 20
+    local barra_y = 20
+    local barra_ancho = 200
+    local barra_alto = 20
+
+
+    -- FONDO
+
+    love.graphics.setColor(
+        0.2,
+        0.2,
+        0.2
+    )
+
+    love.graphics.rectangle(
+        "fill",
+        barra_x,
+        barra_y,
+        barra_ancho,
+        barra_alto
+    )
+
+
+    -- VIDA
+
+    local porcentaje =
+        HUD.vida / vida_maxima
+
+    love.graphics.setColor(
+        0.8,
+        0.1,
+        0.1
+    )
+
+    love.graphics.rectangle(
+        "fill",
+        barra_x,
+        barra_y,
+        barra_ancho * porcentaje,
+        barra_alto
+    )
+
+
+    -- BORDE
+
+    love.graphics.setColor(
+        1,
+        1,
+        1
+    )
+
+    love.graphics.rectangle(
+        "line",
+        barra_x,
+        barra_y,
+        barra_ancho,
+        barra_alto
+    )
+
+
+    -- TEXTO
+
+    love.graphics.setColor(
+        1,
+        1,
+        1
+    )
+
+    love.graphics.print(
+        "Vida: " .. HUD.vida .. " / " .. vida_maxima,
+        85,
+        22
+    )
+
+    love.graphics.print(
+    "Enemigos restantes: " ..
+    HUD.enemigos_restantes,
+    610,
+    20
+    )
+
+    love.graphics.print(
+    "Oleada: " ..
+    HUD.oleada_actual ..
+    " / " ..
+    HUD.oleadas_totales,
+    610,
+    40
+    )
+
+    love.graphics.print(
+        "WASD = Mover",
+        20,
+        50
+    )
+
+    love.graphics.print(
+        "ESPACIO = Atacar",
+        20,
+        70
+    )
+
+    love.graphics.print(
+        "F1 = Debug",
+        20,
+        90
+    )
+
+    love.graphics.setColor(
+        1,
+        1,
+        1
+    )
+
+end
+
+
+return HUD

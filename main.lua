@@ -5,6 +5,10 @@ require("enemigo")
 require("sonido")
 require("particulas")
 
+local HUD = require("hud")
+
+local Eventos = require("evento")
+
 local MaquinaEstado =
     require("estados.maquina_estado")
 
@@ -85,6 +89,28 @@ local function ContarEnemigosRestantes()
     end
 
     return cantidad
+
+end
+
+-- NOTIFICAR CAMBIOS DE ENEMIGOS
+
+local ultimo_numero_enemigos = nil
+
+local function ActualizarContadorEnemigos()
+
+    local cantidad =
+        ContarEnemigosRestantes()
+
+    if cantidad ~= ultimo_numero_enemigos then
+
+        ultimo_numero_enemigos = cantidad
+
+        Eventos.emitir(
+           "enemigos_actualizados",
+           cantidad
+        )
+
+    end
 
 end
 
@@ -281,15 +307,27 @@ local function ReiniciarJuego()
 
     Jugador.Load()
 
+    Eventos.emitir(
+    "vida_actualizada",
+    Jugador.vida
+)
+
 
 enemigos = {}
 
 oleada_actual = 1
 
+Eventos.emitir(
+    "oleada_actualizada",
+    oleada_actual,
+    oleadas_totales
+)
+
 GenerarOleada(
     oleada_actual
 )
 
+ActualizarContadorEnemigos()
 
     if particulas ~= nil then
 
@@ -298,6 +336,8 @@ GenerarOleada(
     end
 
 end
+
+
 
 
 -- LOAD
@@ -389,7 +429,6 @@ function Juego.Reiniciar()
 
 end
 
-
 -- UPDATE
 
 function Juego.UpdateJugando(dt)
@@ -453,8 +492,8 @@ if Jugador.nuevo_ataque then
     end
 
 
-    ReproducirSonido(
-        sonidos.ataque
+    Eventos.emitir(
+       "jugador_ataca"
     )
 
 end
@@ -527,26 +566,31 @@ for _, enemigo in ipairs(enemigos) do
             true
 
 
-        ReproducirSonido(
-            sonidos.golpe_enemigo
+        Eventos.emitir(
+        "enemigo_golpeado"
         )
 
 
-        if enemigo.muerto then
+if enemigo.muerto then
 
-            ParticulasDerrota(
-                enemigo
-            )
+   Eventos.emitir(
+        "enemigo_derrotado",
+        enemigo
+    )
 
-        else
+else
 
-            ParticulasGolpe(
-                enemigo
-            )
+    Eventos.emitir(
+        "enemigo_herido",
+        enemigo
+    )
 
-        end
+end
+
+    
 
     end
+
 
 end
 
@@ -586,8 +630,8 @@ if #enemigos_que_golpean > 0
     )
 
 
-    ReproducirSonido(
-        sonidos.golpe_jugador
+    Eventos.emitir(
+    "jugador_golpeado"
     )
 
 
@@ -653,6 +697,12 @@ if todos_derrotados then
         oleada_actual =
             oleada_actual + 1
 
+            Eventos.emitir(
+            "oleada_actualizada",
+            oleada_actual,
+            oleadas_totales
+)
+
         enemigos = {}
 
         GenerarOleada(
@@ -671,6 +721,8 @@ if todos_derrotados then
 end
 
 end
+
+ActualizarContadorEnemigos()
 
 end
 
@@ -707,156 +759,6 @@ function love.keypressed(
 
     end
 
-
-end
-
-
--- INTERFAZ
-
-local function DibujarInterfaz()
-
-    local vida_maxima =
-        10
-
-
-    local barra_x =
-        20
-
-
-    local barra_y =
-        20
-
-
-    local barra_ancho =
-        200
-
-
-    local barra_alto =
-        20
-
-
-    -- FONDO
-
-    love.graphics.setColor(
-        0.2,
-        0.2,
-        0.2
-    )
-
-
-    love.graphics.rectangle(
-        "fill",
-        barra_x,
-        barra_y,
-        barra_ancho,
-        barra_alto
-    )
-
-
-    -- VIDA
-
-    local porcentaje =
-        Jugador.vida /
-        vida_maxima
-
-
-    love.graphics.setColor(
-        0.8,
-        0.1,
-        0.1
-    )
-
-
-    love.graphics.rectangle(
-        "fill",
-        barra_x,
-        barra_y,
-        barra_ancho *
-        porcentaje,
-        barra_alto
-    )
-
-
-    -- BORDE
-
-    love.graphics.setColor(
-        1,
-        1,
-        1
-    )
-
-
-    love.graphics.rectangle(
-        "line",
-        barra_x,
-        barra_y,
-        barra_ancho,
-        barra_alto
-    )
-
-
-    -- TEXTO 
-
-    love.graphics.setColor(
-        1,
-        1,
-        1
-    )
-
-
-    love.graphics.print(
-        "Vida: " ..
-        Jugador.vida ..
-        " / " ..
-        vida_maxima,
-        85,
-        22
-    )
-
-
-    love.graphics.print(
-        "Enemigos restantes: " ..
-        ContarEnemigosRestantes(),
-        610,
-        20
-    )
-
-    love.graphics.print(
-    "Oleada: " ..
-    oleada_actual ..
-    " / " ..
-    oleadas_totales,
-    610,
-    40
-)
-
-
-    love.graphics.print(
-        "WASD = Mover",
-        20,
-        50
-    )
-
-
-    love.graphics.print(
-        "ESPACIO = Atacar",
-        20,
-        70
-    )
-
-
-    love.graphics.print(
-        "F1 = Debug",
-        20,
-        90
-    )
-
-
-    love.graphics.setColor(
-        1,
-        1,
-        1
-    )
 
 end
 
@@ -918,7 +820,7 @@ end
     end
 
 
-    DibujarInterfaz()
+HUD.Draw()
 
 
 end

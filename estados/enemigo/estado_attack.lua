@@ -39,10 +39,7 @@ function EstadoAttack:Load(enemigo)
         end
 
     end
-
-    function estado:Draw()
-    end
-
+    
     return estado
 
 end

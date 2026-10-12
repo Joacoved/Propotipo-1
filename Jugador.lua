@@ -16,6 +16,8 @@ local EstadoHurt =
 local EstadoDeath =
     require("estados.jugador.estado_death")
 
+local Eventos = require("evento")
+
 
 Jugador = {}
 
@@ -1021,6 +1023,11 @@ function Jugador.RecibirGolpe(
             0
 
     end
+
+    Eventos.emitir(
+    "vida_actualizada",
+    Jugador.vida
+)
 
 
     Jugador.invulnerable =
