@@ -704,17 +704,25 @@ if todos_derrotados and not CorrutinaOleadas.Activa() then
 
         CorrutinaOleadas.Iniciar(
             oleada_actual + 1,
+
             function(siguiente_oleada)
 
-                oleada_actual = siguiente_oleada
+               oleada_actual = siguiente_oleada
+
+               Eventos.emitir(
+                 "oleada_actualizada",
+                 oleada_actual,
+                  oleadas_totales
+                )
 
                 enemigos = {}
 
                 GenerarOleada(
-                    oleada_actual
+                   oleada_actual
                 )
 
             end
+
         )
 
     else
