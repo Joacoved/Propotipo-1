@@ -38,7 +38,7 @@ end
 
 
         love.graphics.printf(
-            "PROTOTIPO 2",
+            "PROTOTIPO 4",
             0,
             220,
             800,
