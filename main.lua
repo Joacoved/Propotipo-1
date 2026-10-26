@@ -26,6 +26,8 @@ local Orc1 = require("enemigos.orc1")
 local Orc2 = require("enemigos.orc2")
 local Orc3 = require("enemigos.orc3")
 
+local CorrutinaOleadas = require("corrutina_oleadas")
+
 local Juego = {}
 
 local maquina_estado_juego
@@ -307,6 +309,8 @@ local function ReiniciarJuego()
 
     Jugador.Load()
 
+    CorrutinaOleadas.Reset()
+
     Eventos.emitir(
     "vida_actualizada",
     Jugador.vida
@@ -351,7 +355,7 @@ function love.load()
 
 
     love.window.setTitle(
-        "Prototipo1"
+        "Prototipo4"
     )
 
 
@@ -432,6 +436,10 @@ end
 -- UPDATE
 
 function Juego.UpdateJugando(dt)
+
+    CorrutinaOleadas.Update(
+        dt
+    )
 
     UpdateParticulas(
         dt
@@ -689,24 +697,24 @@ else
     end
 
 
-if todos_derrotados then
 
-    if oleada_actual <
-       oleadas_totales then
+if todos_derrotados and not CorrutinaOleadas.Activa() then
 
-        oleada_actual =
-            oleada_actual + 1
+    if oleada_actual < oleadas_totales then
 
-            Eventos.emitir(
-            "oleada_actualizada",
-            oleada_actual,
-            oleadas_totales
-)
+        CorrutinaOleadas.Iniciar(
+            oleada_actual + 1,
+            function(siguiente_oleada)
 
-        enemigos = {}
+                oleada_actual = siguiente_oleada
 
-        GenerarOleada(
-            oleada_actual
+                enemigos = {}
+
+                GenerarOleada(
+                    oleada_actual
+                )
+
+            end
         )
 
     else
@@ -719,6 +727,7 @@ if todos_derrotados then
     end
 
 end
+
 
 end
 
@@ -821,6 +830,8 @@ end
 
 
 HUD.Draw()
+
+CorrutinaOleadas.Draw()
 
 
 end
